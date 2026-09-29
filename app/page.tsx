@@ -33,15 +33,7 @@ export default function Page() {
            <p style={{fontSize:'12px',margin:0}}>📍 C/ Villaviciosa Nº13, Villaviciosa, Asturias, España - Sidrería Restaurante El Galeón</p>
         </div>
       </div>
-      <div id="reservar" style={{background:'#fff',margin:'14px',borderRadius:'20px',padding:'18px'}}>
-        <h2 style={{margin:0,color:'#5a0a1a'}}>Reservar Mesa (15 mesas)</h2>
-        <div style={{marginTop:'12px'}}>
-          {Array.from({length:15},(_,i)=>{
-            const n=i+1
-            const ocup = reservas.find(r=>r.mesa===n)
-            return <div key={n} onClick={()=>!ocup && setSel(n)} className={ocup?'mesa ocupada':'mesa'} style={{display:'inline-block',width:'31%',margin:'1%',padding:'12px',border:`2px solid ${sel===n?'#5a0a1a':'#a8d4f0'}`,borderRadius:'12px',textAlign:'center',cursor:'pointer',fontWeight:900, background: ocup?'#ddd':'#fff'}}>{ocup?'🔒':''} Mesa {n}<br/><span style={{fontSize:'11px',fontWeight:400}}>{n<=5?'2 pers':n<=10?'4 pers':'6 pers'}</span></div>
-          })}
-        </div>
+
         <div style={{marginTop:'12px',display:'flex',gap:'8px'}}>
           <input id="nombre" placeholder="Tu nombre" style={{flex:1,padding:'12px',borderRadius:'10px',border:'1px solid #cbd'}}/>
           <input id="hora" type="time" style={{padding:'12px',borderRadius:'10px',border:'1px solid #cbd'}}/>
