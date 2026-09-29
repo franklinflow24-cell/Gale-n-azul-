@@ -17,7 +17,7 @@ export default function Page() {
     const nuevas = [...reservas, r]
     setReservas(nuevas)
     localStorage.setItem('galeon_res', JSON.stringify(nuevas))
-    window.open(`https://wa.me/34600000000?text=${encodeURIComponent(`Hola Galeón, Mesa ${sel} para ${nombre} a las ${hora}. Pago en caja.`)}`,'_blank')
+        window.open(`https://wa.me/34600000000?text=${encodeURIComponent(`Hola! Soy ${nombre}, quiero reservar la Mesa ${sel} a las ${hora} en El Galeón - C/ Villaviciosa Nº13, Asturias`)}`)
   }
 
   return (
