@@ -24,13 +24,13 @@ export default function Page() {
     <div style={{margin:0,fontFamily:'system-ui',background:'#eaf4fb',color:'#0a2a5a',minHeight:'100vh'}}>
       <style>{`.mesa.ocupada{background:#ddd!important; color:#777}`}</style>
       <div style={{background:'linear-gradient(90deg,#a8d4f0,#0a3d7a)',padding:'12px 16px',display:'flex',justifyContent:'space-between',color:'#fff',position:'sticky',top:0,zIndex:9}}>
-        <b>⚓ GALEÓN</b><span style={{background:'#fff',color:'#0a3d7a',padding:'4px 10px',borderRadius:'20px',fontSize:'12px',fontWeight:900}}>VILLAVICIOSA</span>
+        <span style={{fontSize:'11px', marginLeft:'10px'}}>C/ Villaviciosa Nº13, Villaviciosa, Asturias</span>
       </div>
       <div style={{height:'72vh',background:'linear-gradient(to bottom,rgba(0,0,0,0) 30%,#0a3d7a 95%),url(https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1200) center/cover',display:'flex',alignItems:'end',justifyContent:'center',textAlign:'center',padding:'0 20px 30px',color:'#fff'}}>
         <div>
           <h1 style={{fontFamily:'Georgia,serif',fontSize:'64px',margin:0,lineHeight:.9}}>Galeón<br/><span style={{fontSize:'16px',letterSpacing:'10px'}}>SIDRERÍA</span></h1>
           <div style={{marginTop:'12px'}}><a href="#reservar" style={{background:'#5a0a1a',color:'#fff',padding:'14px 28px',borderRadius:'12px',textDecoration:'none',fontWeight:900,margin:'6px',display:'inline-block'}}>RESERVAR MESA</a></div>
-          <p style={{fontSize:'12px',marginTop:'10px'}}>Lun a Dom - Cerrado Jueves • 15 mesas • Pago en Caja</p>
+           <p style={{fontSize:'12px',margin:0}}>📍 C/ Villaviciosa Nº13, Villaviciosa, Asturias, España - Sidrería Restaurante El Galeón</p>
         </div>
       </div>
       <div id="reservar" style={{background:'#fff',margin:'14px',borderRadius:'20px',padding:'18px'}}>
