@@ -38,7 +38,18 @@ export default function Page(){
     const msg=`Hola Galeón! 👋 Soy ${nombre}\n${servicio}\nDía: ${fecha} a las ${hora}${platos}`
     window.open(`https://wa.me/${tel}?text=${encodeURIComponent(msg)}`,'_blank')
   }
-
+    fetch("/api/pedidos", { 
+      method:"POST", 
+      headers:{'Content-Type':'application/json'}, 
+      body: JSON.stringify({ 
+        mesa, 
+        total: total+"€", 
+        items: carrito, 
+        personas, 
+        fecha,
+        hora: new Date().toLocaleTimeString()
+      }) 
+    });
   return(
     <div style={{minHeight:'100vh', fontFamily:'system-ui', position:'relative'}}>
       {/* FONDO DE PLATO DE COMIDA */}
