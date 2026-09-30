@@ -32,21 +32,27 @@ export default function Page(){
 
   const reservar = () => {
     if(!nombre || !fecha) return alert('Completa nombre y fecha')
-    const tel="8295435381"
+    const tel="18295435381"
     let platos = pedido.length ? `\n\nPlatos:\n${pedido.map(x=>`- ${x.n} (${x.p}€)`).join('\n')}\nTotal: ${total}€` : ''
     const servicio = tipo==='comer' ? `COMER AQUÍ - Mesa ${mesa} para ${personas} personas` : `PARA RECOGER (Take Away) para ${personas} personas`
     const msg=`Hola Galeón! 👋 Soy ${nombre}\n${servicio}\nDía: ${fecha} a las ${hora}${platos}`
     window.open(`https://wa.me/${tel}?text=${encodeURIComponent(msg)}`,'_blank')
-  }
-    fetch("/api/pedidos", { 
-      method:"POST", 
-      headers:{'Content-Type':'application/json'}, 
-      body: JSON.stringify({ 
-        mesa, 
-        total: total+"€", 
-        items: carrito, 
-        personas, 
-        fecha,
+
+       fetch("/api/pedidos", {
+    method:"POST",
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({
+      mesa,
+      total: total+"€",
+      items: pedido,
+      personas,
+      fecha,
+      hora,
+      nombre,
+      tipo
+    })
+  });
+}   fecha,
         hora: new Date().toLocaleTimeString()
       }) 
     });
