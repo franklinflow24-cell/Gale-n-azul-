@@ -38,22 +38,22 @@ export default function Page(){
     const msg=`Hola Galeón! 👋 Soy ${nombre}\n${servicio}\nDía: ${fecha} a las ${hora}${platos}`
     window.open(`https://wa.me/${tel}?text=${encodeURIComponent(msg)}`,'_blank')
 
-       41   fetch("/api/pedidos", {
-42     method:"POST",
-43     headers:{'Content-Type':'application/json'},
-44     body: JSON.stringify({
-45       mesa,
-46       total: total+"€",
-47       items: pedido,
-48       personas,
-49       fecha,
-50       hora,
-51       nombre,
-52       tipo
-53     })
-54   });
-55 }
-56 return(
+   fetch("/api/pedidos", {
+     method:"POST",
+     headers:{'Content-Type':'application/json'},
+     body: JSON.stringify({
+       mesa,
+      total: total+"€",
+      items: pedido,
+       personas,
+      fecha,
+       hora,
+      nombre,
+      tipo
+    })
+   });
+ }
+ return(
       }) 
     });
   return(
