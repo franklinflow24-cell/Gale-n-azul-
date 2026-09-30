@@ -54,7 +54,7 @@ export default function Page(){
    });
  }
  return(
-      }) 
+  <dice style...
     });
   return(
     <div style={{minHeight:'100vh', fontFamily:'system-ui', position:'relative'}}>
