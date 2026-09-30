@@ -16,7 +16,17 @@ export default function Admin() {
   }
 
   useEffect(() => {
+      useEffect(() => {
     if(localStorage.getItem("galeon_admin") === "true") setLogin(true);
+    const cargar = async () => {
+      try {
+        const res = await fetch('/api/pedidos');
+        const data = await res.json();
+        setPedidos(data);
+      } catch(e){}
+    };
+    cargar();
+    setInterval(cargar, 5000);
   }, []);
 
   if(!login){
