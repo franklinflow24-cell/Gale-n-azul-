@@ -21,6 +21,7 @@ const MENU = [
 
 export default function Page(){
   const [nombre,setNombre]=useState('')
+  const [telefono,setTelefono]=useState('')
   const [fecha,setFecha]=useState('')
   const [hora,setHora]=useState('20:30')
   const [personas,setPersonas]=useState('2')
@@ -32,55 +33,43 @@ export default function Page(){
 
   const reservar = () => {
     if(!nombre || !fecha) return alert('Completa nombre y fecha')
-    const tel="18295435381"
+    const telGaleon="18295435381"
     let platos = pedido.length ? `\n\nPlatos:\n${pedido.map(x=>`- ${x.n} (${x.p}€)`).join('\n')}\nTotal: ${total}€` : ''
-    const servicio = tipo==='comer' ? `COMER AQUÍ - Mesa ${mesa} para ${personas} personas` : `PARA RECOGER (Take Away) para ${personas} personas`
-    const msg=`Hola Galeón! 👋 Soy ${nombre}\n${servicio}\nDía: ${fecha} a las ${hora}${platos}`
-    window.open(`https://wa.me/${tel}?text=${encodeURIComponent(msg)}`,'_blank')
+    const servicio = tipo==='comer' ? `COMER AQUÍ - Mesa ${mesa} para ${personas} pers` : `PARA RECOGER para ${personas} pers`
+    const msg=`Hola Galeón! 👋 Soy ${nombre} - Tel: ${telefono}\n${servicio}\nDía: ${fecha} a las ${hora}${platos}`
+    window.open(`https://wa.me/${telGaleon}?text=${encodeURIComponent(msg)}`,'_blank')
 
     fetch("/api/pedidos", {
       method:"POST",
       headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({
-        mesa,
-        total: total+"€",
-        items: pedido,
-        personas,
-        fecha,
-        hora,
-        nombre,
-        tipo
-      })
+      body: JSON.stringify({ mesa, total: total+"€", items: pedido, personas, fecha, hora, nombre, telefono, tipo })
     });
   }
 
   return(
     <div style={{minHeight:'100vh', fontFamily:'system-ui', position:'relative'}}>
-      <div style={{
-        position:'fixed', top:0, left:0, right:0, bottom:0,
-        backgroundImage:'url(https://images.unsplash.com/photo-1555939594-58d7cb561ad1?q=80&w=2000)',
-        backgroundSize:'cover', backgroundPosition:'center',
-        zIndex:-2
-      }}/>
+      <div style={{position:'fixed', top:0, left:0, right:0, bottom:0, backgroundImage:'url(https://images.unsplash.com/photo-1555939594-58d7cb561ad1?q=80&w=2000)', backgroundSize:'cover', backgroundPosition:'center', zIndex:-2}}/>
       <div style={{position:'fixed', top:0, left:0, right:0, bottom:0, background:'rgba(5,20,40,0.85)', zIndex:-1}}/>
 
       <div style={{maxWidth:'800px', margin:'0 auto', padding:'20px', color:'white'}}>
         <div style={{textAlign:'center', padding:'40px 0 20px 0'}}>
           <p style={{color:'#d4af37', letterSpacing:'5px', fontSize:'11px'}}>VILLAVICIOSA - ASTURIAS</p>
-          <h1 style={{fontSize:'58px', fontFamily:'Georgia', margin:'10px 0', textShadow:'0 2px 20px black'}}>GALEÓN</h1>
-          <p style={{color:'#ddd'}}>Elige si comes aquí o recoges</p>
+          <h1 style={{fontSize:'58px', fontFamily:'Georgia', margin:'10px 0'}}>GALEÓN</h1>
         </div>
 
         <div style={{background:'white', color:'#111', padding:'20px', borderRadius:'16px', marginBottom:'20px'}}>
           <h3 style={{margin:'0 0 12px 0'}}>¿Cómo lo quieres?</h3>
           <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:'10px'}}>
             <button onClick={()=>setTipo('comer')} style={{padding:'16px', borderRadius:'12px', border: tipo==='comer'?'2px solid #0a4a2a':'1px solid #ddd', background: tipo==='comer'?'#0a4a2a':'white', color: tipo==='comer'?'white':'black', fontWeight:'bold', cursor:'pointer'}}>🍽️ Comer aquí</button>
-            <button onClick={()=>setTipo('recoger')} style={{padding:'16px', borderRadius:'12px', border: tipo==='recoger'?'2px solid #d4af37':'1px solid #ddd', background: tipo==='recoger'?'#d4af37':'white', color: tipo==='recoger'?'black':'black', fontWeight:'bold', cursor:'pointer'}}>🥡 Para recoger</button>
+            <button onClick={()=>setTipo('recoger')} style={{padding:'16px', borderRadius:'12px', border: tipo==='recoger'?'2px solid #d4af37':'1px solid #ddd', background: tipo==='recoger'?'#d4af37':'white', color:'black', fontWeight:'bold', cursor:'pointer'}}>🥡 Para recoger</button>
           </div>
         </div>
 
         <div style={{background:'white', color:'#111', padding:'24px', borderRadius:'16px', marginBottom:'20px'}}>
-          <input value={nombre} onChange={e=>setNombre(e.target.value)} placeholder="Tu nombre" style={{width:'100%', padding:'14px', marginBottom:'12px', borderRadius:'10px', border:'1px solid #ddd', boxSizing:'border-box'}}/>
+          <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:'10px', marginBottom:'12px'}}>
+            <input value={nombre} onChange={e=>setNombre(e.target.value)} placeholder="Tu nombre" style={{width:'100%', padding:'14px', borderRadius:'10px', border:'1px solid #ddd', boxSizing:'border-box'}}/>
+            <input value={telefono} onChange={e=>setTelefono(e.target.value)} placeholder="Tu WhatsApp" type="tel" inputMode="numeric" style={{width:'100%', padding:'14px', borderRadius:'10px', border:'1px solid #ddd', boxSizing:'border-box'}}/>
+          </div>
           <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:'10px'}}>
             <input type="date" value={fecha} onChange={e=>setFecha(e.target.value)} style={{width:'100%', padding:'14px', borderRadius:'10px', border:'1px solid #ddd', boxSizing:'border-box'}}/>
             <select value={hora} onChange={e=>setHora(e.target.value)} style={{width:'100%', padding:'14px', borderRadius:'10px', border:'1px solid #ddd', boxSizing:'border-box'}}>
@@ -104,7 +93,43 @@ export default function Page(){
               </div>
             </>
           ) : (
-            <>
-              <label style={{fontSize:'12px', fontWeight:'bold', marginTop:'16px', display:'block'}}>¿Para cuántas personas?</label>
-              <div style={{display:'grid', gridTemplateColumns:'repeat(5,1fr)', gap:'8px', margin:'8px 0 0 0'}}>
-                {['1','2','3','4','5','6'].map(n
+            <div style={{marginTop:'12px'}}>
+              <label style={{fontSize:'12px', fontWeight:'bold'}}>¿Para cuántas personas?</label>
+              <div style={{display:'grid', gridTemplateColumns:'repeat(5,1fr)', gap:'8px', marginTop:'8px'}}>
+                {['1','2','3','4','5','6'].map(n=>(
+                  <button key={n} onClick={()=>setPersonas(n)} style={{padding:'10px', borderRadius:'10px', border: personas===n?'2px solid #d4af37':'1px solid #ddd', background: personas===n?'#d4af37':'white', fontWeight:'bold', cursor:'pointer'}}>{n}</button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div style={{background:'rgba(255,255,255,0.08)', backdropFilter:'blur(12px)', padding:'20px', borderRadius:'16px', border:'1px solid rgba(212,175,55,0.2)'}}>
+          <h3 style={{color:'#d4af37', margin:'0 0 15px 0', fontFamily:'Georgia', fontSize:'22px'}}>Nuestra Carta - Toca para elegir</h3>
+          {MENU.map(sec=>(
+            <div key={sec.cat} style={{marginBottom:'18px'}}>
+              <h4 style={{color:'#d4af37', margin:'0 0 8px 0', fontSize:'15px'}}>{sec.cat}</h4>
+              {sec.items.map(it=>{
+                const sel = pedido.find(x=>x.n===it.n)
+                return(
+                  <div key={it.n} onClick={()=>toggle(it)} style={{display:'flex', justifyContent:'space-between', padding:'12px', margin:'6px 0', background: sel?'#d4af37':'rgba(0,0,0,0.4)', color: sel?'black':'white', borderRadius:'10px', cursor:'pointer'}}>
+                    <span style={{fontSize:'14px'}}>{sel?'✓ ':''}{it.n}</span><b>{it.p}€</b>
+                  </div>
+                )
+              })}
+            </div>
+          ))}
+        </div>
+
+        <div style={{background:'white', color:'#111', padding:'24px', borderRadius:'16px', marginTop:'25px', textAlign:'center'}}>
+          <h3 style={{margin:'0 0 5px 0'}}>{tipo==='comer' ? `Mesa ${mesa} · ${personas} pers · ${fecha || 'fecha'} ${hora}` : `Para recoger · ${personas} pers`}</h3>
+          {pedido.length>0 && <p style={{fontSize:'13px', color:'#666'}}>{pedido.length} platos - Total {total}€</p>}
+          <button onClick={reservar} style={{width:'100%', padding:'20px', background: tipo==='comer' ? '#0a4a2a' : '#d4af37', color: tipo==='comer' ? 'white' : 'black', border:'none', borderRadius:'14px', fontWeight:'bold', fontSize:'18px', cursor:'pointer', marginTop:'15px'}}>
+            {tipo==='comer' ? `🍽️ Reservar Mesa ${mesa} por WhatsApp` : `🥡 Pedir para recoger`}
+          </button>
+          <p style={{fontSize:'11px', color:'#888', marginTop:'10px'}}>WhatsApp Restaurante: +1 (829) 543-5381</p>
+        </div>
+      </div>
+    </div>
+  )
+}
