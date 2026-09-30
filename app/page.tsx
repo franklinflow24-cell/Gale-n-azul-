@@ -31,19 +31,20 @@ export default function Page(){
   const toggle = (item:any) => setPedido(prev => prev.find(x=>x.n===item.n) ? prev.filter(x=>x.n!==item.n) : [...prev, item])
   const total = pedido.reduce((s,i)=>s+i.p,0)
 
-  const reservar = () => {
+  const reservar = async () => {
     if(!nombre || !fecha) return alert('Completa nombre y fecha')
     const telGaleon="18295435381"
     let platos = pedido.length ? `\n\nPlatos:\n${pedido.map(x=>`- ${x.n} (${x.p}€)`).join('\n')}\nTotal: ${total}€` : ''
     const servicio = tipo==='comer' ? `COMER AQUÍ - Mesa ${mesa} para ${personas} pers` : `PARA RECOGER para ${personas} pers`
     const msg=`Hola Galeón! 👋 Soy ${nombre} - Tel: ${telefono}\n${servicio}\nDía: ${fecha} a las ${hora}${platos}`
-    window.open(`https://wa.me/${telGaleon}?text=${encodeURIComponent(msg)}`,'_blank')
 
-    fetch("/api/pedidos", {
+    await fetch("/api/pedidos", {
       method:"POST",
       headers:{'Content-Type':'application/json'},
       body: JSON.stringify({ mesa, total: total+"€", items: pedido, personas, fecha, hora, nombre, telefono, tipo })
     });
+
+    window.open(`https://wa.me/${telGaleon}?text=${encodeURIComponent(msg)}`,'_blank')
   }
 
   return(
