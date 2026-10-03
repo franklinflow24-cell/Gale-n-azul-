@@ -1,62 +1,58 @@
 "use client"
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from "react"
 
-export default function Admin() {
-  const [login, setLogin] = useState(false);
-  const [user, setUser] = useState("");
-  const [pass, setPass] = useState("");
+const NPOINT = "https://api.npoint.io/095d2379ae022a7f47b8"
 
-  const checkLogin = () => {
-    if(user.toLowerCase().trim() === "galeon" && pass.trim() === "galeonvillaviciosa31"){
-      setLogin(true);
-      localStorage.setItem("galeon_admin", "true");
-    } else {
-      alert("Usuario o contraseña incorrecta");
+export default function Admin(){
+  const [pedidos,setPedidos]=useState<any[]>([])
+  const [raw,setRaw]=useState("cargando...")
+
+  const cargar = async () => {
+    // 1. Intenta desde tu API
+    try{
+      const r1 = await fetch("/api/pedidos", { cache:"no-store" })
+      const j1 = await r1.json()
+      if(Array.isArray(j1) && j1.length>0){ setPedidos(j1); setRaw(JSON.stringify(j1).slice(0,200)); return }
+    }catch{}
+
+    // 2. Directo a npoint por si Vercel tiene cache
+    try{
+      const r2 = await fetch(NPOINT, { cache:"no-store" })
+      const j2 = await r2.json()
+      setPedidos(Array.isArray(j2)?j2:[])
+      setRaw("Directo npoint: "+JSON.stringify(j2).slice(0,300))
+    }catch(e:any){
+      setRaw("Error: "+e.message)
     }
   }
 
-  useEffect(() => {
-    if(localStorage.getItem("galeon_admin") === "true") setLogin(true);
-  }, []);
+  useEffect(()=>{cargar()},[])
 
-  if(!login){
-    return (
-      <div style={{minHeight:'100vh', display:'flex', alignItems:'center', justifyContent:'center', background:'#0a2540', padding:16}}>
-        <div style={{background:'white', borderRadius:16, padding:32, width:'100%', maxWidth:360}}>
-          <h1 style={{textAlign:'center', fontWeight:800, fontSize:24, color:'#0a2540'}}>GALEÓN AZUL</h1>
-          <p style={{textAlign:'center', color:'#888', marginBottom:24, fontSize:13}}>Panel Villaviciosa</p>
-          <input placeholder="Usuario" onChange={e=>setUser(e.target.value)} style={{width:'100%', border:'1px solid #ccc', padding:12, borderRadius:8, marginBottom:12}} />
-          <input placeholder="Contraseña" type="password" onChange={e=>setPass(e.target.value)} style={{width:'100%', border:'1px solid #ccc', padding:12, borderRadius:8, marginBottom:16}} />
-          <button onClick={checkLogin} style={{width:'100%', background:'#c5a059', color:'white', padding:12, borderRadius:8, fontWeight:700, border:'none'}}>Entrar al Panel</button>
-        </div>
+  return(
+    <div style={{padding:'15px', fontFamily:'Arial', background:'#f0f2f5', minHeight:'100vh'}}>
+      <h2 style={{fontWeight:'900', fontSize:'20px'}}>⚓ Galeón Azul - Panel FIX</h2>
+      <div style={{display:'flex', gap:'8px', marginTop:'10px'}}>
+        <button onClick={cargar} style={{padding:'10px 16px', background:'#0f2d1f', color:'white', borderRadius:'8px', border:'none', fontWeight:'bold'}}>Recargar pedidos</button>
+        <a href="/" style={{padding:'10px', fontSize:'13px'}}>← Web</a>
       </div>
-    )
-  }
-
-  return (
-    <div style={{minHeight:'100vh', background:'#f5f7f9', fontFamily:'sans-serif'}}>
-      <div style={{background:'#0a2540', color:'white', padding:'16px', display:'flex', justifyContent:'space-between', alignItems:'center'}}>
-        <span style={{fontWeight:700}}>⚓ Galeón Azul - Panel</span>
-        <button onClick={()=>{localStorage.removeItem("galeon_admin"); setLogin(false)}} style={{background:'rgba(255,255,255,0.15)', border:'none', color:'white', padding:'6px 12px', borderRadius:6}}>Salir</button>
+      <div style={{marginTop:'10px', background:'white', padding:'10px', borderRadius:'8px', fontSize:'11px'}}>Debug: {raw}</div>
+      
+      <div style={{marginTop:'15px', display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'10px'}}>
+        <div style={{background:'white', padding:'12px', borderRadius:'12px', borderLeft:'4px solid blue'}}><div>Pedidos Hoy</div><div style={{fontSize:'28px', fontWeight:'bold'}}>{pedidos.length}</div></div>
+        <div style={{background:'white', padding:'12px', borderRadius:'12px', borderLeft:'4px solid green'}}><div>Reservas Hoy</div><div style={{fontSize:'28px', fontWeight:'bold'}}>{pedidos.length}</div></div>
+        <div style={{background:'white', padding:'12px', borderRadius:'12px', borderLeft:'4px solid gold'}}><div>Estado</div><div style={{fontWeight:'bold', color:'green'}}>● Abierto</div></div>
       </div>
 
-      <div style={{padding:16, maxWidth:800, margin:'0 auto'}}>
-        <div style={{display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:10, marginBottom:20}}>
-          <div style={{background:'white', padding:16, borderRadius:12, borderLeft:'4px solid #2563eb'}}><small style={{color:'#888'}}>Pedidos Hoy</small><div style={{fontSize:22, fontWeight:800}}>0</div></div>
-          <div style={{background:'white', padding:16, borderRadius:12, borderLeft:'4px solid #16a34a'}}><small style={{color:'#888'}}>Reservas Hoy</small><div style={{fontSize:22, fontWeight:800}}>0</div></div>
-          <div style={{background:'white', padding:16, borderRadius:12, borderLeft:'4px solid #c5a059'}}><small style={{color:'#888'}}>Estado</small><div style={{fontWeight:700, color:'green'}}>● Abierto</div></div>
-        </div>
-
-        <div style={{background:'white', borderRadius:12, padding:16, marginBottom:16, boxShadow:'0 2px 8px rgba(0,0,0,0.05)'}}>
-          <h3 style={{fontWeight:700, marginBottom:8}}>📦 Últimos Pedidos</h3>
-          <p style={{color:'#999', fontSize:14}}>Aún no hay pedidos web. Cuando un cliente pida desde la web principal, aquí aparecerá.</p>
-          <div style={{marginTop:12, background:'#eff6ff', padding:10, borderRadius:8, fontSize:13, color:'#1e40af'}}>Prueba: Haz un pedido desde la web y aparecerá aquí al instante.</div>
-        </div>
-
-        <div style={{background:'white', borderRadius:12, padding:16, boxShadow:'0 2px 8px rgba(0,0,0,0.05)'}}>
-          <h3 style={{fontWeight:700, marginBottom:8}}>📅 Reservas</h3>
-          <p style={{color:'#999', fontSize:14}}>No hay reservas hoy.</p>
-        </div>
+      <div style={{marginTop:'15px'}}>
+        {pedidos.length===0 ? <div style={{background:'white', padding:'15px', borderRadius:'12px'}}>Aún 0. Haz un pedido en la web principal y dale Recargar.</div> :
+          pedidos.map((p:any,i:number)=>(
+            <div key={i} style={{background:'white', marginTop:'10px', padding:'12px', borderRadius:'12px'}}>
+              <b>{p.nombre || 'Sin nombre'} - {p.telefono}</b><br/>
+              <span style={{fontSize:'13px'}}>Mesa {p.mesa} - {p.personas} pers - {p.fecha} {p.hora} - {p.tipo}</span><br/>
+              <span style={{fontSize:'13px'}}>{p.items?.map((x:any)=>x.n).join(', ')} - Total {p.total}</span>
+            </div>
+          ))
+        }
       </div>
     </div>
   )
