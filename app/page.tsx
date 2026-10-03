@@ -46,8 +46,9 @@ const MENU = [
 export default function Home(){
  const [sel,setSel]=useState<Record<string,number>>({})
  const [nombre,setNombre]=useState('')
- const [personas,setPersonas]=useState('2')
  const [fecha,setFecha]=useState('')
+ const [mesa,setMesa]=useState('')
+ const [personas,setPersonas]=useState('2')
 
  const toggle=(name:string,price:number)=>{
   setSel(s=>{const n={...s}; if(n[name]) delete n[name]; else n[name]=price; return n})
@@ -55,32 +56,47 @@ export default function Home(){
  const total=Object.values(sel).reduce((a,b)=>a+b,0)
  const reservar=()=>{
   const lista=Object.keys(sel).map(k=>`• ${k} - ${sel[k].toFixed(2)}€`).join('\n')
-  const msg=`Hola Galeón Azul, quiero reservar:\nNombre: ${nombre}\nPersonas: ${personas}\nFecha: ${fecha}\n\nPedido:\n${lista}\n\nTOTAL: ${total.toFixed(2)}€`
+  const msg=`⚓ RESERVA GALEÓN AZUL\n\nNombre: ${nombre}\nFecha: ${fecha}\nMesa: ${mesa}\nPersonas: ${personas}\n\nPedido:\n${lista}\n\nTOTAL: ${total.toFixed(2)}€`
   window.open(`https://wa.me/18295435381?text=${encodeURIComponent(msg)}`,'_blank')
  }
  return(
-  <div style={{maxWidth:600,margin:'0 auto',padding:20,fontFamily:'system-ui'}}>
-   <h1 style={{textAlign:'center',fontSize:28,margin:0}}>⛵ Galeón Azul</h1>
-   <p style={{textAlign:'center',color:'#666'}}>Selecciona lo que quieres y resérvalo por WhatsApp</p>
-   <input placeholder="Tu nombre" value={nombre} onChange={e=>setNombre(e.target.value)} style={{width:'100%',padding:12,borderRadius:10,border:'1px solid #ddd',marginBottom:10}}/>
-   <div style={{display:'flex',gap:10,marginBottom:20}}>
-    <input placeholder="Fecha" type="date" value={fecha} onChange={e=>setFecha(e.target.value)} style={{flex:1,padding:12,borderRadius:10,border:'1px solid #ddd'}}/>
-    <input placeholder="Personas" type="number" value={personas} onChange={e=>setPersonas(e.target.value)} style={{width:110,padding:12,borderRadius:10,border:'1px solid #ddd'}}/>
-   </div>
-   {MENU.map(g=>(
-    <div key={g.cat} style={{marginBottom:20}}>
-     <h3 style={{background:'#0b3b66',color:'white',padding:'10px 14px',borderRadius:10,margin:'0 0 8px'}}>{g.cat}</h3>
-     {g.items.map(([name,price]:any)=>(
-      <div key={name} onClick={()=>toggle(name,price)} style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'12px 10px',borderBottom:'1px solid #eee',cursor:'pointer',background:sel[name]?'#e6f0ff':'white',borderRadius:8}}>
-       <span style={{flex:1,paddingRight:10}}>{sel[name]?'✅ ':''}{name}</span>
-       <b>{price.toFixed(2)} €</b>
-      </div>
-     ))}
+  <div style={{minHeight:'100vh',background:'linear-gradient(rgba(0,40,25,.85), rgba(0,40,25,.85)), url(https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=1200&auto=format&fit=crop)',backgroundSize:'cover',backgroundAttachment:'fixed',color:'#f5d98b',fontFamily:'Georgia, serif',padding:20}}>
+   <div style={{maxWidth:650,margin:'0 auto'}}>
+    <div style={{textAlign:'center',padding:'40px 0 20px'}}>
+     <div style={{fontSize:50}}>⚓</div>
+     <h1 style={{fontSize:42,margin:'5px 0',color:'#d4af37',textShadow:'2px 2px 4px #000',letterSpacing:2}}>GALEÓN AZUL</h1>
+     <p style={{color:'#f5d98b',fontStyle:'italic',letterSpacing:1}}>Cocina Asturiana & Marisco · Frente al Mar</p>
     </div>
-   ))}
-   <div style={{position:'sticky',bottom:10,background:'white',padding:14,borderRadius:14,boxShadow:'0 4px 20px rgba(0,0,0,.15)'}}>
-    <div style={{display:'flex',justifyContent:'space-between',marginBottom:10}}><b>Seleccionado: {Object.keys(sel).length} platos</b><b>Total: {total.toFixed(2)} €</b></div>
-    <button onClick={reservar} style={{width:'100%',padding:15,background:'#25D366',color:'white',border:'none',borderRadius:12,fontSize:16,fontWeight:'bold'}}>Reservar por WhatsApp</button>
+    <div style={{background:'rgba(0,20,12,.88)',border:'1px solid #d4af37',borderRadius:14,padding:20,marginBottom:20,boxShadow:'0 10px 30px rgba(0,0,0,.4)'}}>
+     <h3 style={{color:'#d4af37',textAlign:'center',marginTop:0}}>TU RESERVA</h3>
+     <input placeholder="Nombre completo" value={nombre} onChange={e=>setNombre(e.target.value)} style={{width:'100%',padding:12,borderRadius:8,border:'1px solid #d4af37',background:'#0b3b26',color:'#f5d98b',marginBottom:10}}/>
+     <div style={{display:'flex',gap:10,marginBottom:10}}>
+      <input type="date" value={fecha} onChange={e=>setFecha(e.target.value)} style={{flex:1,padding:12,borderRadius:8,border:'1px solid #d4af37',background:'#0b3b26',color:'#f5d98b'}}/>
+      <select value={personas} onChange={e=>setPersonas(e.target.value)} style={{width:110,padding:12,borderRadius:8,border:'1px solid #d4af37',background:'#0b3b26',color:'#f5d98b'}}>
+       {[1,2,3,4,5,6,7,8,9,10,12,15,20].map(n=><option key={n} value={n}>{n} pers.</option>)}
+      </select>
+     </div>
+     <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+      {Array.from({length:15},(_,i)=>i+1).map(m=>(
+       <button key={m} onClick={()=>setMesa(m.toString())} style={{flex:'1 0 18%',padding:'10px 0',borderRadius:8,border:'1px solid #d4af37',background:mesa===m.toString()?'#d4af37':'transparent',color:mesa===m.toString()?'#0b3b26':'#f5d98b',fontWeight:'bold'}}>Mesa {m}</button>
+      ))}
+     </div>
+    </div>
+    {MENU.map(g=>(
+     <div key={g.cat} style={{background:'rgba(0,20,12,.88)',border:'1px solid #d4af37',borderRadius:14,padding:15,marginBottom:18}}>
+      <h3 style={{color:'#d4af37',textAlign:'center',borderBottom:'1px solid #d4af37',paddingBottom:8,marginTop:0,letterSpacing:1}}>{g.cat}</h3>
+      {g.items.map(([name,price]:any)=>(
+       <div key={name} onClick={()=>toggle(name,price)} style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'11px 8px',borderBottom:'1px dotted #444',cursor:'pointer',background:sel[name]?'rgba(212,175,55,.18)':'transparent',borderRadius:6}}>
+        <span style={{flex:1,paddingRight:10,color:sel[name]?'#fff':'#f5d98b'}}>{sel[name]?'✓ ':''}{name}</span>
+        <b style={{color:'#d4af37'}}>{price.toFixed(2)} €</b>
+       </div>
+      ))}
+     </div>
+    ))}
+    <div style={{position:'sticky',bottom:12,background:'#0b3b26',border:'1px solid #d4af37',padding:14,borderRadius:14,boxShadow:'0 5px 25px rgba(0,0,0,.5)'}}>
+     <div style={{display:'flex',justifyContent:'space-between',color:'#f5d98b',marginBottom:10}}><span>{Object.keys(sel).length} platos · Mesa {mesa || '-'} · {personas} pers.</span><b style={{color:'#d4af37'}}>Total: {total.toFixed(2)} €</b></div>
+     <button onClick={reservar} style={{width:'100%',padding:15,background:'#d4af37',color:'#0b3b26',border:'none',borderRadius:10,fontSize:17,fontWeight:'bold'}}>Reservar por WhatsApp</button>
+    </div>
    </div>
   </div>
  )
