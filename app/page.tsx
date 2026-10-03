@@ -1,61 +1,87 @@
-"use client"
-import { useState } from "react"
+'use client'
+import {useState} from 'react'
 
-const platos = [
-  {id:1, n:"Arroz con pollo", p:350},
-  {id:2, n:"Moro de guandules", p:400},
-  {id:3, n:"Sancocho", p:500},
-  {id:4, n:"Pescado frito", p:450},
+const MENU = [
+ {cat:'Para Picar', items:[
+  ['Calamares frescos',21],['Chipirones fritos',17],['Chipirones afogaos',18],
+  ['Fritos de merluza',16],['Fritos de bacalao',18],['Fritos de pixín',20],
+  ['Gambas al ajillo',18],['Zamburiñas',20],['Llámpares a la sidra',13],
+  ['Mejillones vinagreta',12],['Mejillones en salsa verde',13],['Pulpo a la plancha',23],
+  ['Croquetas caseras de jamón',13],['Patatas 3 salsas',11],['Pollo al ajillo',11],
+  ['Paté de cabracho',13],['Tabla de embutidos',18],['Tabla de quesos Asturianos',16],
+  ['Cecina con queso de cabra y cebolla caramelizada',18],['Cazuela de pulpo y gambas',19]
+ ]},
+ {cat:'De Cuchara', items:[
+  ['Fabada asturiana',14],['Sopa de marisco',10],['Calamares en su tinta con arroz ó patatas',20]
+ ]},
+ {cat:'Arroces', items:[
+  ['Arroz negro con ali-oli (mín. 2 raciones)',22],['Paella de marisco (mín. 2 raciones)',24],
+  ['Ración de pan',1.30],['Ración de pan sin gluten',2]
+ ]},
+ {cat:'Ensaladas', items:[
+  ['Ensalada sencilla (LTC)',7],['Ensalada mixta',13],
+  ['Ensalada Galeón (pixín, gulas, gambas y champiñones)',20],
+  ['Ensalada de cecina con queso de cabra y cebolla caramelizada',18]
+ ]},
+ {cat:'Carnes', items:[
+  ['Cachopo de jamón y queso',22],['Escalopines al cabrales',16],['Filete con patatas',15],
+  ['Tacos de solomillo de cerdo al ajillo',18],['Picapollo (Dominicano)',18],
+  ['Entrecot con patatas',21],['Solomillo de ternera',22]
+ ]},
+ {cat:'Postres', items:[
+  ['Tarta de queso',6],['Tarta de la abuela',6],['Arroz con leche',6],['Flan de huevo',4],['Queso cabrales',8]
+ ]},
+ {cat:'Bodega - Tintos', items:[
+  ['Cosechero',8],['Ramón Bilbao Rioja',18],['Lan Crianza',16],['Señorío de Nava Ribera del Duero',16]
+ ]},
+ {cat:'Bodega - Rosados', items:[
+  ['Peñascal Aguja',12],['Faustino Rivero Navarra',11],['Valjunco Prieto Picudo',13]
+ ]},
+ {cat:'Bodega - Blancos', items:[
+  ['Camino Do Rey Albariño',16],['Aido da Fonte Albariño',16],['Valdeorras Godello',14],
+  ['Caldirola Moscato',15],['Navesur Rueda',14]
+ ]},
 ]
 
 export default function Home(){
-  const [mesa,setMesa]=useState(1)
-  const [personas,setPersonas]=useState(2)
-  const [fecha,setFecha]=useState("")
-  const [hora,setHora]=useState("20:30")
-  const [nombre,setNombre]=useState("")
-  const [telefono,setTelefono]=useState("")
-  const [tipo,setTipo]=useState("comer")
-  const [pedido,setPedido]=useState<any[]>([])
-  const total = pedido.reduce((s,i)=>s+i.p,0)
+ const [sel,setSel]=useState<Record<string,number>>({})
+ const [nombre,setNombre]=useState('')
+ const [personas,setPersonas]=useState('2')
+ const [fecha,setFecha]=useState('')
 
-  const reservar = async () => {
-    if(!nombre || !fecha) return alert('Pon nombre y fecha')
-    const tel="18295435381"
-    const msg=`Hola Galeón! Soy ${nombre} Tel:${telefono} ${tipo} Mesa ${mesa} ${personas}pers ${fecha} ${hora} Platos: ${pedido.map(x=>x.n).join(',')} Total ${total}€`
-    await fetch("/api/pedidos",{method:"POST",headers:{'Content-Type':'application/json'},body:JSON.stringify({mesa,total:total+"€",items:pedido,personas,fecha,hora,nombre,telefono,tipo})})
-    window.open(`https://wa.me/${tel}?text=${encodeURIComponent(msg)}`,'_blank')
-  }
-
-  return(
-    <div style={{minHeight:'100vh', background:'#0a2a18', display:'flex', justifyContent:'center', padding:'15px', fontFamily:'Arial'}}>
-      <div style={{background:'white', borderRadius:'18px', maxWidth:'420px', width:'100%', overflow:'hidden'}}>
-        <div style={{background:'#0f2d1f', textAlign:'center', padding:'18px 0'}}>
-          <div style={{color:'white', letterSpacing:'6px', fontWeight:'900', fontSize:'22px'}}>GALEÓN</div>
-          <div style={{color:'rgba(255,255,255,0.6)', fontSize:'10px', letterSpacing:'3px', marginTop:'4px'}}>VILLAVICIOSA - ASTURIAS</div>
-        </div>
-        <div style={{padding:'18px'}}>
-          <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:'8px', marginBottom:'12px'}}>
-            <button onClick={()=>setTipo('comer')} style={{padding:'10px', borderRadius:'10px', border:'none', fontWeight:'bold', background: tipo==='comer'?'#0f2d1f':'#eee', color: tipo==='comer'?'white':'black'}}>Comer aquí</button>
-            <button onClick={()=>setTipo('recoger')} style={{padding:'10px', borderRadius:'10px', border:'none', fontWeight:'bold', background: tipo==='recoger'?'#0f2d1f':'#eee', color: tipo==='recoger'?'white':'black'}}>Para recoger</button>
-          </div>
-          <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:'10px'}}>
-            <div><div style={{fontSize:'12px'}}>Tu nombre</div><input value={nombre} onChange={e=>setNombre(e.target.value)} style={{width:'100%', border:'1px solid #ddd', borderRadius:'8px', padding:'8px'}}/></div>
-            <div><div style={{fontSize:'12px'}}>Tu WhatsApp</div><input value={telefono} onChange={e=>setTelefono(e.target.value)} style={{width:'100%', border:'1px solid #ddd', borderRadius:'8px', padding:'8px'}}/></div>
-            <div><div style={{fontSize:'12px'}}>Fecha</div><input type="date" value={fecha} onChange={e=>setFecha(e.target.value)} style={{width:'100%', border:'1px solid #ddd', borderRadius:'8px', padding:'8px'}}/></div>
-            <div><div style={{fontSize:'12px'}}>Hora</div><input type="time" value={hora} onChange={e=>setHora(e.target.value)} style={{width:'100%', border:'1px solid #ddd', borderRadius:'8px', padding:'8px'}}/></div>
-          </div>
-          <div style={{marginTop:'12px'}}><div style={{fontSize:'12px', marginBottom:'6px'}}>Personas</div><div style={{display:'grid', gridTemplateColumns:'repeat(5,1fr)', gap:'6px'}}>{[1,2,3,4,5,6,7,8,9,10].map(n=>(<button key={n} onClick={()=>setPersonas(n)} style={{padding:'8px 0', borderRadius:'8px', border:'none', background:personas===n?'#0f2d1f':'#eee', color:personas===n?'white':'black'}}>{n}{n===10?' +':''}</button>))}</div></div>
-          <div style={{marginTop:'12px'}}><div style={{fontSize:'12px', marginBottom:'6px'}}>Mesa (1 al 15)</div><div style={{display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'6px'}}>{Array.from({length:15},(_,i)=>i+1).map(n=>(<button key={n} onClick={()=>setMesa(n)} style={{padding:'6px', borderRadius:'8px', border:'none', fontSize:'12px', background:mesa===n?'#d4a017':'#eee', fontWeight:mesa===n?'bold':'normal'}}>Mesa {n}</button>))}</div></div>
-          <div style={{marginTop:'14px', borderTop:'1px solid #eee', paddingTop:'10px'}}>
-            <div style={{fontWeight:'bold', fontSize:'14px', marginBottom:'8px'}}>Menú - Añadir platos</div>
-            {platos.map(p=>(<div key={p.id} style={{display:'flex', justifyContent:'space-between', padding:'6px 0', fontSize:'14px'}}><span>{p.n} - {p.p}€</span><button onClick={()=>setPedido([...pedido,p])} style={{border:'1px solid #ddd', background:'white', borderRadius:'20px', padding:'3px 10px', fontSize:'12px'}}>+ Añadir</button></div>))}
-            <div style={{fontSize:'14px', marginTop:'8px'}}>Total: <b>{total}€</b> - {pedido.length} platos {pedido.length>0&&<button onClick={()=>setPedido([])} style={{color:'red', fontSize:'12px', marginLeft:'8px', border:'none', background:'none'}}>vaciar</button>}</div>
-          </div>
-          <button onClick={reservar} style={{width:'100%', background:'#0f2d1f', color:'white', padding:'14px', borderRadius:'12px', border:'none', fontWeight:'bold', marginTop:'14px', fontSize:'16px'}}>Reservar por WhatsApp</button>
-          
-        </div>
+ const toggle=(name:string,price:number)=>{
+  setSel(s=>{const n={...s}; if(n[name]) delete n[name]; else n[name]=price; return n})
+ }
+ const total=Object.values(sel).reduce((a,b)=>a+b,0)
+ const reservar=()=>{
+  const lista=Object.keys(sel).map(k=>`• ${k} - ${sel[k].toFixed(2)}€`).join('\n')
+  const msg=`Hola Galeón Azul, quiero reservar:\nNombre: ${nombre}\nPersonas: ${personas}\nFecha: ${fecha}\n\nPedido:\n${lista}\n\nTOTAL: ${total.toFixed(2)}€`
+  window.open(`https://wa.me/18295435381?text=${encodeURIComponent(msg)}`,'_blank')
+ }
+ return(
+  <div style={{maxWidth:600,margin:'0 auto',padding:20,fontFamily:'system-ui'}}>
+   <h1 style={{textAlign:'center',fontSize:28,margin:0}}>⛵ Galeón Azul</h1>
+   <p style={{textAlign:'center',color:'#666'}}>Selecciona lo que quieres y resérvalo por WhatsApp</p>
+   <input placeholder="Tu nombre" value={nombre} onChange={e=>setNombre(e.target.value)} style={{width:'100%',padding:12,borderRadius:10,border:'1px solid #ddd',marginBottom:10}}/>
+   <div style={{display:'flex',gap:10,marginBottom:20}}>
+    <input placeholder="Fecha" type="date" value={fecha} onChange={e=>setFecha(e.target.value)} style={{flex:1,padding:12,borderRadius:10,border:'1px solid #ddd'}}/>
+    <input placeholder="Personas" type="number" value={personas} onChange={e=>setPersonas(e.target.value)} style={{width:110,padding:12,borderRadius:10,border:'1px solid #ddd'}}/>
+   </div>
+   {MENU.map(g=>(
+    <div key={g.cat} style={{marginBottom:20}}>
+     <h3 style={{background:'#0b3b66',color:'white',padding:'10px 14px',borderRadius:10,margin:'0 0 8px'}}>{g.cat}</h3>
+     {g.items.map(([name,price]:any)=>(
+      <div key={name} onClick={()=>toggle(name,price)} style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'12px 10px',borderBottom:'1px solid #eee',cursor:'pointer',background:sel[name]?'#e6f0ff':'white',borderRadius:8}}>
+       <span style={{flex:1,paddingRight:10}}>{sel[name]?'✅ ':''}{name}</span>
+       <b>{price.toFixed(2)} €</b>
       </div>
+     ))}
     </div>
-  )
+   ))}
+   <div style={{position:'sticky',bottom:10,background:'white',padding:14,borderRadius:14,boxShadow:'0 4px 20px rgba(0,0,0,.15)'}}>
+    <div style={{display:'flex',justifyContent:'space-between',marginBottom:10}}><b>Seleccionado: {Object.keys(sel).length} platos</b><b>Total: {total.toFixed(2)} €</b></div>
+    <button onClick={reservar} style={{width:'100%',padding:15,background:'#25D366',color:'white',border:'none',borderRadius:12,fontSize:16,fontWeight:'bold'}}>Reservar por WhatsApp</button>
+   </div>
+  </div>
+ )
 }
