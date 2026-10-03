@@ -2,11 +2,14 @@
 import { useState } from 'react'
 
 const MENU = [
-  { cat: 'Ensaladas', items: [{n:'Ensalada sencilla (LTC)', p:7},{n:'Ensalada mixta', p:13},{n:'Ensalada Galeón (pixín, gulas, gambas)', p:20},{n:'Ensalada de cecina', p:18}]},
+  { cat: 'Ensaladas', items: [{n:'Ensalada sencilla (LTC)', p:7},{n:'Ensalada mixta', p:13},{n:'Ensalada Galeón (pixín, gulas, gambas y champiñones)', p:20},{n:'Ensalada de cecina con queso de cabra y cebolla caramelizada', p:18}]},
   { cat: 'Para Picar', items: [{n:'Calamares frescos', p:21},{n:'Chipirones fritos', p:17},{n:'Gambas al ajillo', p:18},{n:'Zamburiñas', p:20},{n:'Pulpo a la plancha', p:23},{n:'Croquetas caseras', p:13},{n:'Tabla de quesos Asturianos', p:16}]},
   { cat: 'De Cuchara & Arroces', items: [{n:'Fabada asturiana', p:14},{n:'Sopa de marisco', p:10},{n:'Arroz negro con ali-oli', p:22},{n:'Paella de marisco', p:24}]},
-  { cat: 'Carnes', items: [{n:'Cachopo de jamón y queso', p:22},{n:'Escalopines al cabrales', p:16},{n:'Entrecot con patatas', p:21},{n:'Solomillo de ternera', p:22},{n:'Picapollo Dominicano', p:18}]},
-  { cat: 'Postres', items: [{n:'Tarta de queso', p:6},{n:'Arroz con leche', p:6},{n:'Flan de huevo', p:4}]}
+  { cat: 'Carnes', items: [{n:'Cachopo de jamón y queso', p:22},{n:'Escalopines al cabrales', p:16},{n:'Filete con patatas', p:15},{n:'Tacos de solomillo de cerdo al ajillo', p:18},{n:'Picapollo (Dominicano)', p:18},{n:'Entrecot con patatas', p:21},{n:'Solomillo de ternera', p:22}]},
+  { cat: 'Postres', items: [{n:'Tarta de queso', p:6},{n:'Tarta de la abuela', p:6},{n:'Arroz con leche', p:6},{n:'Flan de huevo', p:4},{n:'Queso cabrales', p:8}]},
+  { cat: 'Bodega - TINTOS', items: [{n:'Cosechero', p:8},{n:'Ramón Bilbao Rioja', p:18},{n:'Lan crianza', p:16},{n:'Señorío de Nava Ribera del Duero', p:16}]},
+  { cat: 'Bodega - ROSADOS', items: [{n:'Peñascal Aguja', p:12},{n:'Faustino Rivero Navarra', p:11},{n:'Valjunco Prieto Picudo', p:13}]},
+  { cat: 'Bodega - BLANCOS', items: [{n:'Camino Do Rey Albariño', p:16},{n:'Aido da Fonte Albariño', p:16},{n:'Valdeorras Godello', p:14},{n:'Caldirola Moscato', p:15},{n:'Navesur Rueda', p:14}]}
 ]
 
 export default function Page(){
@@ -33,7 +36,6 @@ export default function Page(){
 
   return(
     <div className="min-h-screen bg-[#0a1a2f] text-white flex flex-col">
-      {/* FONDO MOVIÉNDOSE */}
       <div className="fixed inset-0 z-0">
         <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=2070" className="w-full h-full object-cover animate-[pan_20s_ease-in-out_infinite_alternate]" />
         <div className="absolute inset-0 bg-gradient-to-b from-[#0a1a2f]/70 via-[#0a1a2f]/60 to-[#0a1a2f]"></div>
@@ -60,19 +62,16 @@ export default function Page(){
               <button onClick={()=>setTipo('comer')} className={`p-4 rounded-xl font-bold ${tipo==='comer'?'bg-amber-400 text-black':'bg-white/10 border border-white/20'}`}>🍽️ Comer aquí</button>
               <button onClick={()=>setTipo('recoger')} className={`p-4 rounded-xl font-bold ${tipo==='recoger'?'bg-amber-400 text-black':'bg-white/10 border border-white/20'}`}>🥡 Para recoger</button>
             </div>
-
             <label className="text-xs tracking-widest text-amber-300 font-semibold">NOMBRE</label>
             <input value={nombre} onChange={e=>setNombre(e.target.value)} placeholder="Tu nombre" className="w-full mt-1 mb-4 p-4 bg-white/10 border border-white/20 rounded-xl text-white outline-none" />
             <div className="grid grid-cols-2 gap-3 mb-5">
               <div><label className="text-xs tracking-widest text-amber-300 font-semibold">FECHA</label><input type="date" value={fecha} onChange={e=>setFecha(e.target.value)} className="w-full mt-1 p-3 bg-white/10 border border-white/20 rounded-xl text-white outline-none"/></div>
               <div><label className="text-xs tracking-widest text-amber-300 font-semibold">HORA</label><select value={hora} onChange={e=>setHora(e.target.value)} className="w-full mt-1 p-3 bg-white/10 border border-white/20 rounded-xl text-white outline-none"><option>13:00</option><option>14:00</option><option>20:30</option><option>21:00</option><option>21:30</option><option>22:00</option></select></div>
             </div>
-
             <label className="text-xs tracking-widest text-amber-300 font-semibold">PERSONAS</label>
             <div className="grid grid-cols-5 gap-2 my-2">
               {['1','2','3','4','5','6','7','8','9','10+'].map(n=>(<button key={n} onClick={()=>setPersonas(n)} className={`py-2 rounded-lg font-bold text-sm ${personas===n?'bg-amber-400 text-black':'bg-white/10 border border-white/20'}`}>{n}</button>))}
             </div>
-
             {tipo==='comer' && (
               <>
                 <label className="text-xs tracking-widest text-amber-300 font-semibold mt-4 block">MESA (1 AL 15)</label>
@@ -81,7 +80,6 @@ export default function Page(){
                 </div>
               </>
             )}
-
             <button onClick={()=>setVista('menu')} className="w-full mt-6 bg-amber-400 text-black font-bold py-4 rounded-xl">CONTINUAR A MENÚ →</button>
           </div>
         )}
@@ -103,7 +101,6 @@ export default function Page(){
         )}
       </div>
 
-      {/* BARRA VERDE FIJA COMO LA FOTO */}
       <div className="fixed bottom-0 left-0 right-0 z-20 bg-emerald-600 text-white px-5 pt-3 pb-5 shadow-2xl">
         <div className="max-w-md mx-auto flex items-center justify-between">
           <div>
@@ -113,9 +110,7 @@ export default function Page(){
           <button className="border border-white/60 px-5 py-2.5 rounded-xl font-semibold">{mesa ? `Mesa #${mesa}` : 'Mesa #'}</button>
         </div>
         <div className="max-w-md mx-auto mt-3">
-          <button onClick={reservar} className="w-full bg-white/20 border border-white/40 py-4 rounded-2xl font-bold flex items-center justify-center gap-2 text-lg">
-            ✈️ ENVIAR PEDIDO POR WHATSAPP
-          </button>
+          <button onClick={reservar} className="w-full bg-white/20 border border-white/40 py-4 rounded-2xl font-bold flex items-center justify-center gap-2 text-lg">✈️ ENVIAR PEDIDO POR WHATSAPP</button>
         </div>
       </div>
 
