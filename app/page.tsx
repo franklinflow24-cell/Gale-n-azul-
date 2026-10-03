@@ -53,7 +53,7 @@ export default function Home(){
             <div style={{fontSize:'14px', marginTop:'8px'}}>Total: <b>{total}€</b> - {pedido.length} platos {pedido.length>0&&<button onClick={()=>setPedido([])} style={{color:'red', fontSize:'12px', marginLeft:'8px', border:'none', background:'none'}}>vaciar</button>}</div>
           </div>
           <button onClick={reservar} style={{width:'100%', background:'#0f2d1f', color:'white', padding:'14px', borderRadius:'12px', border:'none', fontWeight:'bold', marginTop:'14px', fontSize:'16px'}}>Reservar por WhatsApp</button>
-          <a href="/admin" style={{display:'block', textAlign:'center', fontSize:'12px', color:'#999', marginTop:'10px'}}>Ver admin →</a>
+          
         </div>
       </div>
     </div>
