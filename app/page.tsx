@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 const MENU = [
   { cat: 'Ensaladas', items: [{n:'Ensalada sencilla (LTC)', p:7},{n:'Ensalada mixta', p:13},{n:'Ensalada Galeón (pixín, gulas, gambas y champiñones)', p:20},{n:'Ensalada de cecina con queso de cabra y cebolla caramelizada', p:18}]},
@@ -24,6 +24,34 @@ export default function Page() {
   const [tipo, setTipo] = useState('comer')
   const [pedido, setPedido] = useState([])
   const [enviando, setEnviando] = useState(false)
+  const [mesasOcupadas, setMesasOcupadas] = useState([])
+
+  // Cargar mesas ocupadas según la fecha elegida
+  useEffect(() => {
+    if (!fecha || tipo !== 'comer') {
+      setMesasOcupadas([])
+      return
+    }
+    const cargar = async () => {
+      try {
+        const r = await fetch('/api/pedidos', { cache: 'no-store' })
+        const data = await r.json()
+        const arr = Array.isArray(data) ? data : []
+        const ocupadas = arr
+          .filter(p =>
+            p.tipo === 'comer' &&
+            p.mesa &&
+            p.fecha === fecha &&
+            p.estado !== 'finalizada'
+          )
+          .map(p => Number(p.mesa))
+        setMesasOcupadas(ocupadas)
+      } catch {
+        setMesasOcupadas([])
+      }
+    }
+    cargar()
+  }, [fecha, tipo])
 
   const toggle = (item) => {
     setPedido(prev => prev.find(x => x.n === item.n)
@@ -48,7 +76,8 @@ export default function Page() {
           mesa: tipo === 'comer' ? mesa : null,
           tipo,
           items: pedido,
-          total
+          total,
+          estado: 'activa'
         })
       })
     } catch (e) {}
@@ -61,6 +90,10 @@ export default function Page() {
     }
     if (tipo === 'comer' && !mesa) {
       alert('Elige tu mesa')
+      return false
+    }
+    if (tipo === 'comer' && mesasOcupadas.includes(Number(mesa))) {
+      alert('Esa mesa ya está reservada para esa fecha. Elige otra.')
       return false
     }
     return true
@@ -84,11 +117,9 @@ export default function Page() {
     if (pedido.length > 0) {
       platos = '\n\nPlatos:\n' + pedido.map(x => '- ' + x.n + ' (' + x.p + '€)').join('\n') + '\nTotal: ' + total + '€'
     }
-
     const servicio = tipo === 'comer'
       ? 'COMER AQUÍ - Mesa ' + mesa + ' para ' + personas + ' personas'
       : 'PARA RECOGER (Take Away) para ' + personas + ' personas'
-
     const msg = 'Hola Galeón! Soy ' + nombre + '\n' + servicio + '\nDía: ' + fecha + ' a las ' + hora + platos
     window.open('https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent(msg), '_blank')
     setVista('exito')
@@ -103,6 +134,7 @@ export default function Page() {
     setMesa(null)
     setPedido([])
     setTipo('comer')
+    setMesasOcupadas([])
   }
 
   return (
@@ -138,8 +170,10 @@ export default function Page() {
         .grid-5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 8px; margin-bottom: 16px; }
         .option-btn { padding: 14px; border-radius: 14px; font-weight: 600; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.05); color: white; cursor: pointer; }
         .option-btn.active { background: #fbbf24; color: #000; border-color: #fbbf24; }
-        .mesa-btn { height: 48px; border-radius: 12px; font-weight: 700; font-size: 14px; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.05); color: white; cursor: pointer; }
+        .mesa-btn { height: 52px; border-radius: 12px; font-weight: 700; font-size: 13px; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.05); color: white; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; }
         .mesa-btn.active { background: #fbbf24; color: #000; border-color: #fbbf24; }
+        .mesa-btn.ocupada { background: rgba(248,113,113,0.2); border-color: rgba(248,113,113,0.5); color: #fca5a5; cursor: not-allowed; opacity: 0.85; }
+        .mesa-btn .estado { font-size: 9px; font-weight: 500; }
         .persona-btn { padding: 10px 0; border-radius: 12px; font-weight: 600; font-size: 14px; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.05); color: white; cursor: pointer; }
         .persona-btn.active { background: #fbbf24; color: #000; border-color: #fbbf24; }
         .menu-hint { font-size: 14px; color: rgba(255,255,255,0.6); margin-top: -16px; margin-bottom: 24px; }
@@ -158,6 +192,7 @@ export default function Page() {
         .exito-icon { font-size: 4rem; margin-bottom: 20px; }
         .exito h2 { font-family: 'Playfair Display', serif; font-size: 1.75rem; font-weight: 600; margin-bottom: 12px; color: #fcd34d; }
         .exito p { color: rgba(255,255,255,0.8); font-size: 1.1rem; line-height: 1.6; margin-bottom: 32px; }
+        .leyenda { font-size: 11px; color: rgba(255,255,255,0.5); margin-top: 8px; display: flex; gap: 16px; justify-content: center; }
       `}</style>
 
       <div className="page">
@@ -193,7 +228,7 @@ export default function Page() {
                 <div className="grid-2">
                   <div>
                     <label className="label">FECHA</label>
-                    <input className="input" type="date" value={fecha} onChange={e => setFecha(e.target.value)} />
+                    <input className="input" type="date" value={fecha} onChange={e => { setFecha(e.target.value); setMesa(null) }} />
                   </div>
                   <div>
                     <label className="label">HORA</label>
@@ -216,10 +251,26 @@ export default function Page() {
                 {tipo === 'comer' && (
                   <>
                     <label className="label" style={{marginTop: 8}}>ELIGE TU MESA (1-15)</label>
+                    {!fecha && <p style={{fontSize: 12, color: 'rgba(255,255,255,0.5)', marginBottom: 8}}>Primero elige una fecha</p>}
                     <div className="grid-5">
-                      {[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15].map(n => (
-                        <button key={n} className={mesa === n ? 'mesa-btn active' : 'mesa-btn'} onClick={() => setMesa(n)}>{n}</button>
-                      ))}
+                      {[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15].map(n => {
+                        const ocupada = mesasOcupadas.includes(n)
+                        return (
+                          <button
+                            key={n}
+                            className={ocupada ? 'mesa-btn ocupada' : (mesa === n ? 'mesa-btn active' : 'mesa-btn')}
+                            onClick={() => { if (!ocupada) setMesa(n) }}
+                            disabled={ocupada}
+                          >
+                            {n}
+                            {ocupada && <span className="estado">Reservada</span>}
+                          </button>
+                        )
+                      })}
+                    </div>
+                    <div className="leyenda">
+                      <span>● Disponible</span>
+                      <span style={{color: '#fca5a5'}}>● Reservada</span>
                     </div>
                   </>
                 )}
