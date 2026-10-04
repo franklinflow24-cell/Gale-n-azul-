@@ -9,7 +9,7 @@ const MENU = [
   { cat: 'BODEGA - TINTOS', items: [{name:'Cosechero', price:8}, {name:'Ramón Bilbao Rioja', price:18}, {name:'Lan crianza', price:16}, {name:'Señorío de Nava Ribera del Duero', price:16}] },
   { cat: 'BODEGA - ROSADOS', items: [{name:'Peñascal Aguja', price:12}, {name:'Faustino Rivero Navarra', price:11}, {name:'Valjunco Prieto Picudo', price:13}] },
   { cat: 'BODEGA - BLANCOS', items: [{name:'Camino Do Rey Albariño', price:16}, {name:'Aido da Fonte Albariño', price:16}, {name:'Valdeorras Godello', price:14}, {name:'Caldirola Moscato', price:15}, {name:'Navesur Rueda', price:14}] },
-
+]
 export default function Page() {
   const [vista, setVista] = useState('inicio') // inicio, reserva, menu
   const [mesa, setMesa] = useState<number | null>(null)
