@@ -7,6 +7,10 @@ export default function Admin() {
   const [filtro, setFiltro] = useState("todos")
   const [menuAbierto, setMenuAbierto] = useState(null)
   const [error, setError] = useState("")
+  const [fechaReporte, setFechaReporte] = useState("")
+  const [mostrarReporte, setMostrarReporte] = useState(false)
+
+  const hoy = new Date().toISOString().slice(0, 10)
 
   const cargar = async () => {
     setLoading(true)
@@ -14,13 +18,8 @@ export default function Admin() {
     try {
       const controller = new AbortController()
       const timeout = setTimeout(() => controller.abort(), 8000)
-
-      const r = await fetch("/api/pedidos", {
-        cache: "no-store",
-        signal: controller.signal
-      })
+      const r = await fetch("/api/pedidos", { cache: "no-store", signal: controller.signal })
       clearTimeout(timeout)
-
       const j = await r.json()
       setPedidos(Array.isArray(j) ? j : [])
     } catch (e) {
@@ -34,16 +33,33 @@ export default function Admin() {
     cargar()
   }, [])
 
+  const guardarLista = async (nuevaLista) => {
+    await fetch("https://api.npoint.io/095d2379ae022a7f47b8", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(nuevaLista)
+    })
+    setPedidos(nuevaLista)
+  }
+
+  const finalizarPedido = async (id) => {
+    if (!confirm("¿Finalizar esta reserva y liberar la mesa?")) return
+    const nueva = pedidos.map(p =>
+      p.id === id ? { ...p, estado: "finalizada" } : p
+    )
+    try {
+      await guardarLista(nueva)
+      setMenuAbierto(null)
+    } catch {
+      alert("Error al finalizar")
+    }
+  }
+
   const borrarPedido = async (id) => {
     if (!confirm("¿Borrar este pedido?")) return
+    const nueva = pedidos.filter(p => p.id !== id)
     try {
-      const nuevos = pedidos.filter(p => p.id !== id)
-      await fetch("https://api.npoint.io/095d2379ae022a7f47b8", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(nuevos)
-      })
-      setPedidos(nuevos)
+      await guardarLista(nueva)
       setMenuAbierto(null)
     } catch {
       alert("Error al borrar")
@@ -53,36 +69,48 @@ export default function Admin() {
   const borrarTodos = async () => {
     if (!confirm("¿Borrar TODOS los pedidos?")) return
     try {
-      await fetch("https://api.npoint.io/095d2379ae022a7f47b8", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify([])
-      })
-      setPedidos([])
+      await guardarLista([])
     } catch {
       alert("Error al borrar")
     }
   }
 
-  const hoy = new Date().toISOString().slice(0, 10)
-  const pedidosHoy = pedidos.filter(p =>
+  // Pedidos activos (no finalizados)
+  const activos = pedidos.filter(p => p.estado !== "finalizada")
+  const pedidosHoy = activos.filter(p =>
     (p.fecha || "").startsWith(hoy) || (p.fechaCreacion || "").startsWith(hoy)
   )
 
-  const totalVentas = pedidos.reduce((s, p) => s + (Number(p.total) || 0), 0)
-  const totalVentasHoy = pedidosHoy.reduce((s, p) => s + (Number(p.total) || 0), 0)
-
+  // Mesas ocupadas HOY (solo reservas activas de hoy)
   const mesasOcupadas = new Set(
     pedidosHoy
       .filter(p => (p.tipo === "comer" || p.tipo === "COMER AQUÍ") && p.mesa)
       .map(p => Number(p.mesa))
   )
 
+  const totalVentas = pedidos.reduce((s, p) => s + (Number(p.total) || 0), 0)
+  const totalVentasHoy = pedidos
+    .filter(p => (p.fecha || "").startsWith(hoy) || (p.fechaCreacion || "").startsWith(hoy))
+    .reduce((s, p) => s + (Number(p.total) || 0), 0)
+
+  // Reporte por fecha
+  const pedidosReporte = fechaReporte
+    ? pedidos.filter(p => (p.fecha || "").startsWith(fechaReporte) || (p.fechaCreacion || "").startsWith(fechaReporte))
+    : []
+  const totalReporte = pedidosReporte.reduce((s, p) => s + (Number(p.total) || 0), 0)
+
   const pedidosFiltrados =
     filtro === "hoy" ? pedidosHoy
-    : filtro === "comer" ? pedidos.filter(p => p.tipo === "comer" || p.tipo === "COMER AQUÍ")
-    : filtro === "recoger" ? pedidos.filter(p => p.tipo === "recoger" || p.tipo === "PARA RECOGER")
-    : pedidos
+    : filtro === "comer" ? activos.filter(p => p.tipo === "comer" || p.tipo === "COMER AQUÍ")
+    : filtro === "recoger" ? activos.filter(p => p.tipo === "recoger" || p.tipo === "PARA RECOGER")
+    : filtro === "finalizados" ? pedidos.filter(p => p.estado === "finalizada")
+    : activos
+
+  const ayer = () => {
+    const d = new Date()
+    d.setDate(d.getDate() - 1)
+    return d.toISOString().slice(0, 10)
+  }
 
   return (
     <>
@@ -100,15 +128,22 @@ export default function Admin() {
         .btn-primary { background: #fbbf24; color: #000; }
         .btn-ghost { background: rgba(255,255,255,0.08); color: white; border: 1px solid rgba(255,255,255,0.15); text-decoration: none; }
         .btn-danger { background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
+        .btn-ok { background: rgba(16,185,129,0.2); color: #34d399; border: 1px solid rgba(16,185,129,0.4); font-size: 12px; padding: 6px 12px; border-radius: 8px; cursor: pointer; }
         .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
         .stat-card { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); border-radius: 16px; padding: 16px; text-align: center; }
         .stat-card .label { font-size: 11px; letter-spacing: 0.1em; color: rgba(255,255,255,0.55); margin-bottom: 6px; }
         .stat-card .value { font-size: 1.6rem; font-weight: 700; }
         .stat-card.amber .value { color: #fcd34d; }
         .stat-card.green .value { color: #4ade80; }
-        .reporte { background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.25); border-radius: 16px; padding: 16px 20px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+        .reporte { background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.25); border-radius: 16px; padding: 16px 20px; margin-bottom: 16px; }
+        .reporte-top { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 12px; }
         .reporte-titulo { font-size: 13px; color: rgba(255,255,255,0.6); }
         .reporte-total { font-size: 1.5rem; font-weight: 700; color: #fcd34d; }
+        .reporte-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+        .reporte-btns button { padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 500; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.05); color: white; cursor: pointer; }
+        .reporte-btns button.active { background: #fbbf24; color: #000; border-color: #fbbf24; }
+        .reporte-detalle { margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.1); }
+        .reporte-detalle p { font-size: 14px; color: rgba(255,255,255,0.7); margin-bottom: 6px; }
         .mesas-section { margin-bottom: 28px; }
         .mesas-section h3 { font-size: 13px; letter-spacing: 0.1em; color: rgba(255,255,255,0.6); margin-bottom: 12px; }
         .mesas-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
@@ -123,6 +158,7 @@ export default function Admin() {
         .filtro-btn.active { background: #fbbf24; color: #000; border-color: #fbbf24; }
         .lista { display: flex; flex-direction: column; gap: 12px; }
         .pedido-card { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); border-radius: 16px; padding: 18px; position: relative; }
+        .pedido-card.finalizada { opacity: 0.55; }
         .pedido-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; gap: 12px; }
         .pedido-nombre { font-weight: 600; font-size: 1.05rem; }
         .pedido-tipo { font-size: 12px; padding: 4px 10px; border-radius: 999px; font-weight: 500; white-space: nowrap; }
@@ -131,9 +167,12 @@ export default function Admin() {
         .pedido-meta { font-size: 13px; color: rgba(255,255,255,0.55); margin-bottom: 8px; line-height: 1.5; }
         .pedido-platos { font-size: 14px; color: rgba(255,255,255,0.85); margin-bottom: 8px; line-height: 1.5; }
         .pedido-total { font-weight: 700; color: #fcd34d; font-size: 1.1rem; }
+        .pedido-acciones { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
         .menu-btn { background: none; border: none; color: rgba(255,255,255,0.5); font-size: 20px; cursor: pointer; padding: 4px 8px; }
-        .dropdown { position: absolute; top: 48px; right: 16px; background: #1a2a3f; border: 1px solid rgba(255,255,255,0.15); border-radius: 12px; padding: 6px; z-index: 20; min-width: 140px; }
-        .dropdown button { width: 100%; text-align: left; padding: 10px 14px; background: none; border: none; color: #f87171; font-size: 14px; cursor: pointer; border-radius: 8px; }
+        .dropdown { position: absolute; top: 48px; right: 16px; background: #1a2a3f; border: 1px solid rgba(255,255,255,0.15); border-radius: 12px; padding: 6px; z-index: 20; min-width: 160px; }
+        .dropdown button { width: 100%; text-align: left; padding: 10px 14px; background: none; border: none; font-size: 14px; cursor: pointer; border-radius: 8px; color: white; }
+        .dropdown button.rojo { color: #f87171; }
+        .dropdown button.verde { color: #34d399; }
         .empty { text-align: center; padding: 48px 20px; color: rgba(255,255,255,0.4); }
         .error-msg { text-align: center; padding: 16px; color: #f87171; font-size: 14px; margin-bottom: 12px; }
       `}</style>
@@ -153,27 +192,76 @@ export default function Admin() {
 
           <div className="stats">
             <div className="stat-card amber">
-              <div className="label">PEDIDOS HOY</div>
+              <div className="label">ACTIVAS HOY</div>
               <div className="value">{pedidosHoy.length}</div>
             </div>
             <div className="stat-card green">
-              <div className="label">TOTAL PEDIDOS</div>
-              <div className="value">{pedidos.length}</div>
+              <div className="label">TOTAL ACTIVAS</div>
+              <div className="value">{activos.length}</div>
             </div>
           </div>
 
+          {/* Reporte de ventas */}
           <div className="reporte">
-            <div>
-              <div className="reporte-titulo">REPORTE DE VENTAS</div>
-              <div style={{fontSize: 13, color: "rgba(255,255,255,0.5)", marginTop: 4}}>
-                Hoy: €{totalVentasHoy.toFixed(2)} · Histórico: €{totalVentas.toFixed(2)}
+            <div className="reporte-top">
+              <div>
+                <div className="reporte-titulo">REPORTE DE VENTAS</div>
+                <div style={{fontSize: 13, color: "rgba(255,255,255,0.5)", marginTop: 4}}>
+                  Hoy: €{totalVentasHoy.toFixed(2)} · Histórico: €{totalVentas.toFixed(2)}
+                </div>
               </div>
+              <div className="reporte-total">€{totalVentas.toFixed(2)}</div>
             </div>
-            <div className="reporte-total">€{totalVentas.toFixed(2)}</div>
+
+            <div className="reporte-btns">
+              <button
+                className={fechaReporte === hoy ? "active" : ""}
+                onClick={() => { setFechaReporte(hoy); setMostrarReporte(true) }}
+              >
+                Hoy
+              </button>
+              <button
+                className={fechaReporte === ayer() ? "active" : ""}
+                onClick={() => { setFechaReporte(ayer()); setMostrarReporte(true) }}
+              >
+                Ayer
+              </button>
+              <input
+                type="date"
+                value={fechaReporte}
+                onChange={e => { setFechaReporte(e.target.value); setMostrarReporte(true) }}
+                style={{
+                  padding: "8px 12px",
+                  borderRadius: 8,
+                  border: "1px solid rgba(255,255,255,0.15)",
+                  background: "rgba(0,0,0,0.3)",
+                  color: "white",
+                  fontSize: 13
+                }}
+              />
+            </div>
+
+            {mostrarReporte && fechaReporte && (
+              <div className="reporte-detalle">
+                <p><strong>Fecha:</strong> {fechaReporte}</p>
+                <p><strong>Pedidos:</strong> {pedidosReporte.length}</p>
+                <p><strong>Total vendido:</strong> <span style={{color: "#fcd34d", fontWeight: 700}}>€{totalReporte.toFixed(2)}</span></p>
+                {pedidosReporte.length > 0 && (
+                  <div style={{marginTop: 10, fontSize: 13, color: "rgba(255,255,255,0.6)"}}>
+                    {pedidosReporte.map((p, i) => (
+                      <div key={p.id || i} style={{marginBottom: 4}}>
+                        {p.hora || "--:--"} · {p.nombre || "Sin nombre"} · Mesa {p.mesa || "-"} · €{Number(p.total || 0).toFixed(2)}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
+          {/* Estado de mesas HOY */}
           <div className="mesas-section">
-            <h3>ESTADO DE MESAS (HOY)</h3>
+            <h3>ESTADO DE MESAS (HOY) — Rojo = ocupada / Verde = libre</h3>
             <div className="mesas-grid">
               {[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15].map(n => {
                 const ocupada = mesasOcupadas.has(n)
@@ -187,12 +275,14 @@ export default function Admin() {
             </div>
           </div>
 
+          {/* Filtros */}
           <div className="filtros">
             {[
-              { id: "todos", label: "Todos" },
+              { id: "todos", label: "Activas" },
               { id: "hoy", label: "Hoy" },
               { id: "comer", label: "Comer aquí" },
               { id: "recoger", label: "Para llevar" },
+              { id: "finalizados", label: "Finalizadas" },
             ].map(f => (
               <button
                 key={f.id}
@@ -207,14 +297,15 @@ export default function Admin() {
           {error && <div className="error-msg">{error}</div>}
 
           {pedidosFiltrados.length === 0 && !loading ? (
-            <div className="empty">No hay pedidos todavía</div>
+            <div className="empty">No hay pedidos</div>
           ) : (
             <div className="lista">
               {pedidosFiltrados.map((p, i) => {
                 const esComer = p.tipo === "comer" || p.tipo === "COMER AQUÍ"
                 const key = p.id || i
+                const finalizada = p.estado === "finalizada"
                 return (
-                  <div key={key} className="pedido-card">
+                  <div key={key} className={finalizada ? "pedido-card finalizada" : "pedido-card"}>
                     <div className="pedido-header">
                       <div className="pedido-nombre">{p.nombre || "Sin nombre"}</div>
                       <div style={{display: "flex", alignItems: "center", gap: 8}}>
@@ -227,7 +318,14 @@ export default function Admin() {
 
                     {menuAbierto === key && (
                       <div className="dropdown">
-                        <button onClick={() => borrarPedido(p.id)}>🗑 Borrar pedido</button>
+                        {!finalizada && (
+                          <button className="verde" onClick={() => finalizarPedido(p.id)}>
+                            ✓ Finalizar reserva
+                          </button>
+                        )}
+                        <button className="rojo" onClick={() => borrarPedido(p.id)}>
+                          🗑 Borrar pedido
+                        </button>
                       </div>
                     )}
 
@@ -235,6 +333,7 @@ export default function Admin() {
                       {p.mesa ? "Mesa " + p.mesa + " · " : ""}
                       {p.personas ? p.personas + " pers · " : ""}
                       {p.fecha || ""} {p.hora || ""}
+                      {finalizada ? " · Finalizada" : ""}
                     </div>
 
                     {p.items && p.items.length > 0 && (
@@ -245,6 +344,14 @@ export default function Admin() {
 
                     {(p.total || p.total === 0) && (
                       <div className="pedido-total">Total: €{Number(p.total).toFixed(2)}</div>
+                    )}
+
+                    {!finalizada && esComer && (
+                      <div className="pedido-acciones">
+                        <button className="btn-ok" onClick={() => finalizarPedido(p.id)}>
+                          ✓ Finalizar y liberar mesa
+                        </button>
+                      </div>
                     )}
                   </div>
                 )
