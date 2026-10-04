@@ -5,11 +5,9 @@ const MENU = [
   { cat: 'ESPECIALES DE LA CASA', items: [{ name: 'Pollo al Horno', desc: 'Papas y ensalada', price: 750 }, { name: 'Pollo al Grill', desc: 'Salsa de la casa', price: 650 }, { name: 'Pollo Asado', desc: 'Receta original', price: 700 }] },
   { cat: 'PLATOS FUERTES', items: [{ name: 'Paella Marinera', desc: 'Mariscos frescos', price: 890 }, { name: 'Filete de Res', desc: 'Chimichurri', price: 1150 }, { name: 'Chuleta de Cerdo', desc: 'A la parrilla', price: 800 }] },
   { cat: 'ACOMPAÑANTES', items: [{ name: 'Arroz con Gandules', desc: 'Porción', price: 250 }, { name: 'Tostones', desc: 'Con ajo', price: 180 }, { name: 'Yuca Frita', desc: 'Con queso', price: 220 }] },
-    { cat: 'BEBIDAS', items: [{name:'Mojito Clásico', desc:'Menta, ron, lima', price:9}] },
-  { cat: 'BODEGA - TINTOS', items: [{name:'Cosechero', price:8}, {name:'Ramón Bilbao Rioja', price:18}, {name:'Lan crianza', price:16}, {name:'Señorío de Nava Ribera del Duero', price:16}] },
-  { cat: 'BODEGA - ROSADOS', items: [{name:'Peñascal Aguja', price:12}, {name:'Faustino Rivero Navarra', price:11}, {name:'Valjunco Prieto Picudo', price:13}] },
-  { cat: 'BODEGA - BLANCOS', items: [{name:'Camino Do Rey Albariño', price:16}, {name:'Aido da Fonte Albariño', price:16}, {name:'Valdeorras Godello', price:14}, {name:'Caldirola Moscato', price:15}, {name:'Navesur Rueda', price:14}] },
+  { cat: 'BEBIDAS', items: [{ name: 'Mojito Clásico', desc: 'Menta y hielo', price: 350 }, { name: 'Coca Cola', desc: 'Fria', price: 150 }, { name: 'Jugo Natural', desc: 'Naranja', price: 200 }] },
 ]
+
 export default function Page() {
   const [vista, setVista] = useState('inicio') // inicio, reserva, menu
   const [mesa, setMesa] = useState<number | null>(null)
@@ -24,7 +22,7 @@ export default function Page() {
   const enviar = () => {
     if (!mesa || cart.length === 0) return alert('Elige mesa y tu pedido')
     const mensaje = `*GALEÓN RESTAURANTE - LA ROMANA*\n\nNombre: ${nombre || 'Sin nombre'}\nFecha: ${fecha}\nHora: ${hora}\nMesa: #${mesa}\n\nPedido:\n${cart.map(c => `- ${c.name} $${c.price}`).join('\n')}\n\nTOTAL: $${total}`
-    window.open(`https://wa.me/18295435381?text=${encodeURIComponent(mensaje)}`, '_blank')
+    window.open(`https://wa.me/18095551234?text=${encodeURIComponent(mensaje)}`, '_blank')
   }
 
   return (
