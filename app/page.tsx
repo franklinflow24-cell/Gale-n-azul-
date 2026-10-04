@@ -2,14 +2,85 @@
 import { useState, useEffect } from 'react'
 
 const MENU = [
-  { cat: 'Ensaladas', items: [{n:'Ensalada sencilla (LTC)', p:7},{n:'Ensalada mixta', p:13},{n:'Ensalada Galeón (pixín, gulas, gambas y champiñones)', p:20},{n:'Ensalada de cecina con queso de cabra y cebolla caramelizada', p:18}]},
-  { cat: 'Para Picar', items: [{n:'Calamares frescos', p:21},{n:'Chipirones fritos', p:17},{n:'Gambas al ajillo', p:18},{n:'Zamburiñas', p:20},{n:'Pulpo a la plancha', p:23},{n:'Croquetas caseras', p:13},{n:'Tabla de quesos Asturianos', p:16}]},
-  { cat: 'De Cuchara & Arroces', items: [{n:'Fabada asturiana', p:14},{n:'Sopa de marisco', p:10},{n:'Arroz negro con ali-oli', p:22},{n:'Paella de marisco', p:24}]},
-  { cat: 'Carnes', items: [{n:'Cachopo de jamón y queso', p:22},{n:'Escalopines al cabrales', p:16},{n:'Filete con patatas', p:15},{n:'Tacos de solomillo de cerdo al ajillo', p:18},{n:'Picapollo (Dominicano)', p:18},{n:'Entrecot con patatas', p:21},{n:'Solomillo de ternera', p:22}]},
-  { cat: 'Postres', items: [{n:'Tarta de queso', p:6},{n:'Tarta de la abuela', p:6},{n:'Arroz con leche', p:6},{n:'Flan de huevo', p:4},{n:'Queso cabrales', p:8}]},
-  { cat: 'Bodega - TINTOS', items: [{n:'Cosechero', p:8},{n:'Ramón Bilbao Rioja', p:18},{n:'Lan crianza', p:16},{n:'Señorío de Nava Ribera del Duero', p:16}]},
-  { cat: 'Bodega - ROSADOS', items: [{n:'Peñascal Aguja', p:12},{n:'Faustino Rivero Navarra', p:11},{n:'Valjunco Prieto Picudo', p:13}]},
-  { cat: 'Bodega - BLANCOS', items: [{n:'Camino Do Rey Albariño', p:16},{n:'Aido da Fonte Albariño', p:16},{n:'Valdeorras Godello', p:14},{n:'Caldirola Moscato', p:15},{n:'Navesur Rueda', p:14}]}
+  {
+    cat: 'Ensaladas',
+    items: [
+      { n: 'Ensalada sencilla (LTC)', p: 7, img: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&q=80' },
+      { n: 'Ensalada mixta', p: 13, img: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80' },
+      { n: 'Ensalada Galeón (pixín, gulas, gambas y champiñones)', p: 20, img: 'https://images.unsplash.com/photo-1551248429-40975aa4de74?w=400&q=80' },
+      { n: 'Ensalada de cecina con queso de cabra y cebolla caramelizada', p: 18, img: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&q=80' },
+    ]
+  },
+  {
+    cat: 'Para Picar',
+    items: [
+      { n: 'Calamares frescos', p: 21, img: 'https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?w=400&q=80' },
+      { n: 'Chipirones fritos', p: 17, img: 'https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=400&q=80' },
+      { n: 'Gambas al ajillo', p: 18, img: 'https://images.unsplash.com/photo-1625944230940-f2e08e2d5a0e?w=400&q=80' },
+      { n: 'Zamburiñas', p: 20, img: 'https://images.unsplash.com/photo-1559737558-2f5a35f4523b?w=400&q=80' },
+      { n: 'Pulpo a la plancha', p: 23, img: 'https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=400&q=80' },
+      { n: 'Croquetas caseras', p: 13, img: 'https://images.unsplash.com/photo-1608039829570-db8c3c0e0f0b?w=400&q=80' },
+      { n: 'Tabla de quesos Asturianos', p: 16, img: 'https://images.unsplash.com/photo-1452195100486-9cc805987862?w=400&q=80' },
+    ]
+  },
+  {
+    cat: 'De Cuchara & Arroces',
+    items: [
+      { n: 'Fabada asturiana', p: 14, img: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=400&q=80' },
+      { n: 'Sopa de marisco', p: 10, img: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=400&q=80' },
+      { n: 'Arroz negro con ali-oli', p: 22, img: 'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?w=400&q=80' },
+      { n: 'Paella de marisco', p: 24, img: 'https://images.unsplash.com/photo-1534080569008-8d1e2e0f0e0e?w=400&q=80' },
+    ]
+  },
+  {
+    cat: 'Carnes',
+    items: [
+      { n: 'Cachopo de jamón y queso', p: 22, img: 'https://images.unsplash.com/photo-1600891964092-4316c288032e?w=400&q=80' },
+      { n: 'Escalopines al cabrales', p: 16, img: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=400&q=80' },
+      { n: 'Filete con patatas', p: 15, img: 'https://images.unsplash.com/photo-1600891964092-4316c288032e?w=400&q=80' },
+      { n: 'Tacos de solomillo de cerdo al ajillo', p: 18, img: 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=400&q=80' },
+      { n: 'Picapollo (Dominicano)', p: 18, img: 'https://images.unsplash.com/photo-1598103442097-8b570abe5878?w=400&q=80' },
+      { n: 'Entrecot con patatas', p: 21, img: 'https://images.unsplash.com/photo-1558030006-450675393462?w=400&q=80' },
+      { n: 'Solomillo de ternera', p: 22, img: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=400&q=80' },
+    ]
+  },
+  {
+    cat: 'Postres',
+    items: [
+      { n: 'Tarta de queso', p: 6, img: 'https://images.unsplash.com/photo-1524351199678-941a58a3df50?w=400&q=80' },
+      { n: 'Tarta de la abuela', p: 6, img: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400&q=80' },
+      { n: 'Arroz con leche', p: 6, img: 'https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400&q=80' },
+      { n: 'Flan de huevo', p: 4, img: 'https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400&q=80' },
+      { n: 'Queso cabrales', p: 8, img: 'https://images.unsplash.com/photo-1452195100486-9cc805987862?w=400&q=80' },
+    ]
+  },
+  {
+    cat: 'Bodega - TINTOS',
+    items: [
+      { n: 'Cosechero', p: 8, img: 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=400&q=80' },
+      { n: 'Ramón Bilbao Rioja', p: 18, img: 'https://images.unsplash.com/photo-1474722883778-792e7990302f?w=400&q=80' },
+      { n: 'Lan crianza', p: 16, img: 'https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?w=400&q=80' },
+      { n: 'Señorío de Nava Ribera del Duero', p: 16, img: 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=400&q=80' },
+    ]
+  },
+  {
+    cat: 'Bodega - ROSADOS',
+    items: [
+      { n: 'Peñascal Aguja', p: 12, img: 'https://images.unsplash.com/photo-1558001373-7b93ee48ffa0?w=400&q=80' },
+      { n: 'Faustino Rivero Navarra', p: 11, img: 'https://images.unsplash.com/photo-1569529465841-dfecdab7503b?w=400&q=80' },
+      { n: 'Valjunco Prieto Picudo', p: 13, img: 'https://images.unsplash.com/photo-1558001373-7b93ee48ffa0?w=400&q=80' },
+    ]
+  },
+  {
+    cat: 'Bodega - BLANCOS',
+    items: [
+      { n: 'Camino Do Rey Albariño', p: 16, img: 'https://images.unsplash.com/photo-1547595628-c61a29f496f0?w=400&q=80' },
+      { n: 'Aido da Fonte Albariño', p: 16, img: 'https://images.unsplash.com/photo-1569529465841-dfecdab7503b?w=400&q=80' },
+      { n: 'Valdeorras Godello', p: 14, img: 'https://images.unsplash.com/photo-1547595628-c61a29f496f0?w=400&q=80' },
+      { n: 'Caldirola Moscato', p: 15, img: 'https://images.unsplash.com/photo-1558001373-7b93ee48ffa0?w=400&q=80' },
+      { n: 'Navesur Rueda', p: 14, img: 'https://images.unsplash.com/photo-1569529465841-dfecdab7503b?w=400&q=80' },
+    ]
+  }
 ]
 
 const WHATSAPP = '18295435381'
@@ -26,7 +97,6 @@ export default function Page() {
   const [enviando, setEnviando] = useState(false)
   const [mesasOcupadas, setMesasOcupadas] = useState([])
 
-  // Cargar mesas ocupadas según la fecha elegida
   useEffect(() => {
     if (!fecha || tipo !== 'comer') {
       setMesasOcupadas([])
@@ -69,29 +139,17 @@ export default function Page() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          nombre,
-          fecha,
-          hora,
-          personas,
+          nombre, fecha, hora, personas,
           mesa: tipo === 'comer' ? mesa : null,
-          tipo,
-          items: pedido,
-          total,
-          estado: 'activa'
+          tipo, items: pedido, total, estado: 'activa'
         })
       })
     } catch (e) {}
   }
 
   const validar = () => {
-    if (!nombre || !fecha) {
-      alert('Completa nombre y fecha')
-      return false
-    }
-    if (tipo === 'comer' && !mesa) {
-      alert('Elige tu mesa')
-      return false
-    }
+    if (!nombre || !fecha) { alert('Completa nombre y fecha'); return false }
+    if (tipo === 'comer' && !mesa) { alert('Elige tu mesa'); return false }
     if (tipo === 'comer' && mesasOcupadas.includes(Number(mesa))) {
       alert('Esa mesa ya está reservada para esa fecha. Elige otra.')
       return false
@@ -112,7 +170,6 @@ export default function Page() {
     setEnviando(true)
     await guardarEnAdmin()
     setEnviando(false)
-
     let platos = ''
     if (pedido.length > 0) {
       platos = '\n\nPlatos:\n' + pedido.map(x => '- ' + x.n + ' (' + x.p + '€)').join('\n') + '\nTotal: ' + total + '€'
@@ -179,8 +236,13 @@ export default function Page() {
         .menu-hint { font-size: 14px; color: rgba(255,255,255,0.6); margin-top: -16px; margin-bottom: 24px; }
         .categoria { margin-bottom: 28px; }
         .categoria h3 { color: #fcd34d; font-size: 12px; letter-spacing: 0.12em; font-weight: 500; border-bottom: 1px solid rgba(251, 191, 36, 0.2); padding-bottom: 8px; margin-bottom: 12px; }
-        .plato { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; border-radius: 12px; text-align: left; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.25); color: white; cursor: pointer; margin-bottom: 8px; font-size: 14px; }
-        .plato.selected { background: #fbbf24; color: #000; font-weight: 600; border-color: #fbbf24; }
+        .plato { width: 100%; display: flex; align-items: center; gap: 12px; padding: 10px; border-radius: 14px; text-align: left; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.25); color: white; cursor: pointer; margin-bottom: 10px; font-size: 14px; }
+        .plato.selected { background: rgba(251, 191, 36, 0.25); border-color: #fbbf24; }
+        .plato-img { width: 64px; height: 64px; border-radius: 12px; object-fit: cover; flex-shrink: 0; background: rgba(0,0,0,0.3); }
+        .plato-info { flex: 1; min-width: 0; }
+        .plato-nombre { font-size: 13px; line-height: 1.35; margin-bottom: 4px; }
+        .plato-precio { font-weight: 700; color: #fcd34d; font-size: 14px; }
+        .plato-check { font-size: 18px; color: #fbbf24; flex-shrink: 0; }
         .bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; z-index: 30; background: rgba(10, 26, 47, 0.95); border-top: 1px solid rgba(255,255,255,0.1); padding: 16px 20px 24px; }
         .bottom-inner { max-width: 440px; margin: 0 auto; }
         .bottom-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
@@ -233,12 +295,7 @@ export default function Page() {
                   <div>
                     <label className="label">HORA</label>
                     <select className="select" value={hora} onChange={e => setHora(e.target.value)}>
-                      <option>13:00</option>
-                      <option>14:00</option>
-                      <option>20:30</option>
-                      <option>21:00</option>
-                      <option>21:30</option>
-                      <option>22:00</option>
+                      <option>13:00</option><option>14:00</option><option>20:30</option><option>21:00</option><option>21:30</option><option>22:00</option>
                     </select>
                   </div>
                 </div>
@@ -256,12 +313,7 @@ export default function Page() {
                       {[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15].map(n => {
                         const ocupada = mesasOcupadas.includes(n)
                         return (
-                          <button
-                            key={n}
-                            className={ocupada ? 'mesa-btn ocupada' : (mesa === n ? 'mesa-btn active' : 'mesa-btn')}
-                            onClick={() => { if (!ocupada) setMesa(n) }}
-                            disabled={ocupada}
-                          >
+                          <button key={n} className={ocupada ? 'mesa-btn ocupada' : (mesa === n ? 'mesa-btn active' : 'mesa-btn')} onClick={() => { if (!ocupada) setMesa(n) }} disabled={ocupada}>
                             {n}
                             {ocupada && <span className="estado">Reservada</span>}
                           </button>
@@ -284,7 +336,7 @@ export default function Page() {
               <button className="back" onClick={() => setVista('reserva')}>← Volver a Reserva</button>
               <div className="card">
                 <h2>Nuestra Carta</h2>
-                <p className="menu-hint">Toca un plato para añadirlo (opcional)</p>
+                <p className="menu-hint">Toca un plato para añadirlo</p>
                 {MENU.map(sec => (
                   <div key={sec.cat} className="categoria">
                     <h3>{sec.cat.toUpperCase()}</h3>
@@ -292,8 +344,12 @@ export default function Page() {
                       const sel = pedido.find(x => x.n === it.n)
                       return (
                         <button key={it.n} className={sel ? 'plato selected' : 'plato'} onClick={() => toggle(it)}>
-                          <span>{sel ? '✓ ' : ''}{it.n}</span>
-                          <span>{it.p}€</span>
+                          <img className="plato-img" src={it.img} alt={it.n} loading="lazy" />
+                          <div className="plato-info">
+                            <div className="plato-nombre">{it.n}</div>
+                            <div className="plato-precio">{it.p}€</div>
+                          </div>
+                          {sel && <span className="plato-check">✓</span>}
                         </button>
                       )
                     })}
