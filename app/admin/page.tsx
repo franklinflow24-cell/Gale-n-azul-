@@ -9,8 +9,13 @@ export default function Admin() {
   const [error, setError] = useState("")
   const [fechaReporte, setFechaReporte] = useState("")
   const [mostrarReporte, setMostrarReporte] = useState(false)
+  const [fechaMesas, setFechaMesas] = useState("")
 
   const hoy = new Date().toISOString().slice(0, 10)
+
+  useEffect(() => {
+    setFechaMesas(hoy)
+  }, [])
 
   const cargar = async () => {
     setLoading(true)
@@ -75,32 +80,35 @@ export default function Admin() {
     }
   }
 
-  // Pedidos activos (no finalizados)
-  const activos = pedidos.filter(p => p.estado !== "finalizada")
-  const pedidosHoy = activos.filter(p =>
-    (p.fecha || "").startsWith(hoy) || (p.fechaCreacion || "").startsWith(hoy)
-  )
+  // Solo por FECHA DE RESERVA (la que eligió el cliente)
+  const porFechaReserva = (fecha) =>
+    pedidos.filter(p => (p.fecha || "") === fecha)
 
-  // Mesas ocupadas HOY (solo reservas activas de hoy)
+  const activos = pedidos.filter(p => p.estado !== "finalizada")
+
+  // Mesas ocupadas según la fecha que el dueño está mirando
   const mesasOcupadas = new Set(
-    pedidosHoy
-      .filter(p => (p.tipo === "comer" || p.tipo === "COMER AQUÍ") && p.mesa)
+    activos
+      .filter(p =>
+        (p.tipo === "comer" || p.tipo === "COMER AQUÍ") &&
+        p.mesa &&
+        (p.fecha || "") === fechaMesas
+      )
       .map(p => Number(p.mesa))
   )
 
+  // Totales: solo por fecha de reserva del cliente
   const totalVentas = pedidos.reduce((s, p) => s + (Number(p.total) || 0), 0)
-  const totalVentasHoy = pedidos
-    .filter(p => (p.fecha || "").startsWith(hoy) || (p.fechaCreacion || "").startsWith(hoy))
-    .reduce((s, p) => s + (Number(p.total) || 0), 0)
+  const totalVentasHoy = porFechaReserva(hoy).reduce((s, p) => s + (Number(p.total) || 0), 0)
 
-  // Reporte por fecha
+  // Reporte: SOLO fecha de reserva (nunca fechaCreacion)
   const pedidosReporte = fechaReporte
-    ? pedidos.filter(p => (p.fecha || "").startsWith(fechaReporte) || (p.fechaCreacion || "").startsWith(fechaReporte))
+    ? porFechaReserva(fechaReporte)
     : []
   const totalReporte = pedidosReporte.reduce((s, p) => s + (Number(p.total) || 0), 0)
 
   const pedidosFiltrados =
-    filtro === "hoy" ? pedidosHoy
+    filtro === "hoy" ? activos.filter(p => (p.fecha || "") === hoy)
     : filtro === "comer" ? activos.filter(p => p.tipo === "comer" || p.tipo === "COMER AQUÍ")
     : filtro === "recoger" ? activos.filter(p => p.tipo === "recoger" || p.tipo === "PARA RECOGER")
     : filtro === "finalizados" ? pedidos.filter(p => p.estado === "finalizada")
@@ -139,13 +147,16 @@ export default function Admin() {
         .reporte-top { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 12px; }
         .reporte-titulo { font-size: 13px; color: rgba(255,255,255,0.6); }
         .reporte-total { font-size: 1.5rem; font-weight: 700; color: #fcd34d; }
-        .reporte-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+        .reporte-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; align-items: center; }
         .reporte-btns button { padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 500; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.05); color: white; cursor: pointer; }
         .reporte-btns button.active { background: #fbbf24; color: #000; border-color: #fbbf24; }
         .reporte-detalle { margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.1); }
         .reporte-detalle p { font-size: 14px; color: rgba(255,255,255,0.7); margin-bottom: 6px; }
         .mesas-section { margin-bottom: 28px; }
-        .mesas-section h3 { font-size: 13px; letter-spacing: 0.1em; color: rgba(255,255,255,0.6); margin-bottom: 12px; }
+        .mesas-section h3 { font-size: 13px; letter-spacing: 0.1em; color: rgba(255,255,255,0.6); margin-bottom: 8px; }
+        .mesas-fecha { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+        .mesas-fecha label { font-size: 12px; color: rgba(255,255,255,0.5); }
+        .mesas-fecha input { padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: rgba(0,0,0,0.3); color: white; font-size: 13px; }
         .mesas-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
         .mesa-item { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; padding: 12px 8px; text-align: center; }
         .mesa-item .num { font-weight: 700; font-size: 1.1rem; }
@@ -192,8 +203,8 @@ export default function Admin() {
 
           <div className="stats">
             <div className="stat-card amber">
-              <div className="label">ACTIVAS HOY</div>
-              <div className="value">{pedidosHoy.length}</div>
+              <div className="label">RESERVAS HOY</div>
+              <div className="value">{porFechaReserva(hoy).filter(p => p.estado !== "finalizada").length}</div>
             </div>
             <div className="stat-card green">
               <div className="label">TOTAL ACTIVAS</div>
@@ -201,11 +212,11 @@ export default function Admin() {
             </div>
           </div>
 
-          {/* Reporte de ventas */}
+          {/* Reporte: solo por fecha de reserva del cliente */}
           <div className="reporte">
             <div className="reporte-top">
               <div>
-                <div className="reporte-titulo">REPORTE DE VENTAS</div>
+                <div className="reporte-titulo">REPORTE DE VENTAS (por fecha de reserva)</div>
                 <div style={{fontSize: 13, color: "rgba(255,255,255,0.5)", marginTop: 4}}>
                   Hoy: €{totalVentasHoy.toFixed(2)} · Histórico: €{totalVentas.toFixed(2)}
                 </div>
@@ -243,25 +254,42 @@ export default function Admin() {
 
             {mostrarReporte && fechaReporte && (
               <div className="reporte-detalle">
-                <p><strong>Fecha:</strong> {fechaReporte}</p>
-                <p><strong>Pedidos:</strong> {pedidosReporte.length}</p>
+                <p><strong>Fecha de reserva:</strong> {fechaReporte}</p>
+                <p><strong>Pedidos ese día:</strong> {pedidosReporte.length}</p>
                 <p><strong>Total vendido:</strong> <span style={{color: "#fcd34d", fontWeight: 700}}>€{totalReporte.toFixed(2)}</span></p>
-                {pedidosReporte.length > 0 && (
-                  <div style={{marginTop: 10, fontSize: 13, color: "rgba(255,255,255,0.6)"}}>
-                    {pedidosReporte.map((p, i) => (
-                      <div key={p.id || i} style={{marginBottom: 4}}>
-                        {p.hora || "--:--"} · {p.nombre || "Sin nombre"} · Mesa {p.mesa || "-"} · €{Number(p.total || 0).toFixed(2)}
-                      </div>
-                    ))}
-                  </div>
+                {pedidosReporte.length === 0 && (
+                  <p style={{color: "rgba(255,255,255,0.45)"}}>No hay reservas para esta fecha.</p>
                 )}
+                {pedidosReporte.map((p, i) => (
+                  <div key={p.id || i} style={{marginTop: 6, fontSize: 13, color: "rgba(255,255,255,0.65)"}}>
+                    {p.hora || "--:--"} · {p.nombre || "Sin nombre"} · Mesa {p.mesa || "-"} · €{Number(p.total || 0).toFixed(2)}
+                  </div>
+                ))}
               </div>
             )}
           </div>
 
-          {/* Estado de mesas HOY */}
+          {/* Estado de mesas: según la fecha que el dueño elija */}
           <div className="mesas-section">
-            <h3>ESTADO DE MESAS (HOY) — Rojo = ocupada / Verde = libre</h3>
+            <h3>ESTADO DE MESAS</h3>
+            <div className="mesas-fecha">
+              <label>Ver mesas del día:</label>
+              <input
+                type="date"
+                value={fechaMesas}
+                onChange={e => setFechaMesas(e.target.value)}
+              />
+              <button
+                className="btn btn-ghost"
+                style={{padding: "8px 12px", fontSize: 12}}
+                onClick={() => setFechaMesas(hoy)}
+              >
+                Hoy
+              </button>
+            </div>
+            <p style={{fontSize: 12, color: "rgba(255,255,255,0.45)", marginBottom: 12}}>
+              Rojo = reservada ese día · Verde = libre ese día
+            </p>
             <div className="mesas-grid">
               {[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15].map(n => {
                 const ocupada = mesasOcupadas.has(n)
@@ -275,7 +303,6 @@ export default function Admin() {
             </div>
           </div>
 
-          {/* Filtros */}
           <div className="filtros">
             {[
               { id: "todos", label: "Activas" },
