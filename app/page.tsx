@@ -12,6 +12,8 @@ const MENU = [
   { cat: 'Bodega - BLANCOS', items: [{n:'Camino Do Rey Albariño', p:16},{n:'Aido da Fonte Albariño', p:16},{n:'Valdeorras Godello', p:14},{n:'Caldirola Moscato', p:15},{n:'Navesur Rueda', p:14}]}
 ]
 
+const WHATSAPP = "18295435381"
+
 export default function Page() {
   const [vista, setVista] = useState('inicio')
   const [nombre, setNombre] = useState('')
@@ -21,6 +23,7 @@ export default function Page() {
   const [mesa, setMesa] = useState<number | null>(null)
   const [tipo, setTipo] = useState('comer')
   const [pedido, setPedido] = useState<any[]>([])
+  const [enviando, setEnviando] = useState(false)
 
   const toggle = (item: any) => {
     setPedido(prev => prev.find(x => x.n === item.n) 
@@ -30,11 +33,7 @@ export default function Page() {
   }
   const total = pedido.reduce((s, i) => s + i.p, 0)
 
-  const reservar = async () => {
-    if (!nombre || !fecha) return alert('Completa nombre y fecha')
-    if (tipo === 'comer' && !mesa) return alert('Elige tu mesa')
-    
-    // Guardar en el admin
+  const guardarEnAdmin = async () => {
     try {
       await fetch('/api/pedidos', {
         method: 'POST',
@@ -51,9 +50,36 @@ export default function Page() {
         })
       })
     } catch {}
+  }
 
-    // Enviar WhatsApp
-    const tel = "34635559767"
+  const validar = () => {
+    if (!nombre || !fecha) {
+      alert('Completa nombre y fecha')
+      return false
+    }
+    if (tipo === 'comer' && !mesa) {
+      alert('Elige tu mesa')
+      return false
+    }
+    return true
+  }
+
+  // Solo reserva → se guarda en admin + mensaje de éxito
+  const hacerReserva = async () => {
+    if (!validar()) return
+    setEnviando(true)
+    await guardarEnAdmin()
+    setEnviando(false)
+    setVista('exito')
+  }
+
+  // WhatsApp → se guarda en admin + abre WhatsApp
+  const enviarWhatsApp = async () => {
+    if (!validar()) return
+    setEnviando(true)
+    await guardarEnAdmin()
+    setEnviando(false)
+
     let platos = pedido.length 
       ? `\n\nPlatos:\n${pedido.map(x => `- \( {x.n} ( \){x.p}€)`).join('\n')}\nTotal: ${total}€` 
       : ''
@@ -61,10 +87,11 @@ export default function Page() {
       ? `COMER AQUÍ - Mesa ${mesa} para ${personas} personas` 
       : `PARA RECOGER (Take Away) para ${personas} personas`
     const msg = `Hola Galeón! Soy \( {nombre}\n \){servicio}\nDía: ${fecha} a las \( {hora} \){platos}`
-    window.open(`https://wa.me/\( {tel}?text= \){encodeURIComponent(msg)}`, '_blank')
+    window.open(`https://wa.me/\( {WHATSAPP}?text= \){encodeURIComponent(msg)}`, '_blank')
+    setVista('exito')
   }
 
-  const showBar = vista !== 'inicio' || pedido.length > 0
+  const showBar = (vista === 'reserva' || vista === 'menu') && vista !== 'exito'
 
   return (
     <>
@@ -76,7 +103,7 @@ export default function Page() {
         .bg { position: fixed; inset: 0; z-index: 0; }
         .bg img { width: 100%; height: 100%; object-fit: cover; transform: scale(1.05); }
         .bg-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.7), rgba(10,26,47,0.75), #0a1a2f); }
-        .content { position: relative; z-index: 10; display: flex; flex-direction: column; min-height: 100vh; padding-bottom: ${showBar ? '160px' : '40px'}; }
+        .content { position: relative; z-index: 10; display: flex; flex-direction: column; min-height: 100vh; padding-bottom: ${showBar ? '200px' : '40px'}; }
         .inicio { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 0 24px; max-width: 480px; margin: 0 auto; }
         .badge { display: inline-flex; align-items: center; gap: 8px; border: 1px solid rgba(251, 191, 36, 0.5); border-radius: 999px; padding: 8px 20px; color: #fcd34d; letter-spacing: 0.25em; font-size: 12px; font-weight: 500; margin-bottom: 32px; }
         .titulo { font-family: 'Playfair Display', serif; font-size: clamp(2.8rem, 8vw, 3.75rem); font-weight: 700; line-height: 0.95; }
@@ -87,6 +114,11 @@ export default function Page() {
         .btn-primary:hover { background: #fcd34d; }
         .btn-secondary { width: 100%; background: transparent; color: #fcd34d; font-weight: 600; font-size: 1.125rem; padding: 18px; border-radius: 16px; border: 1px solid rgba(251, 191, 36, 0.6); cursor: pointer; transition: all 0.2s; }
         .btn-secondary:hover { background: rgba(251, 191, 36, 0.1); }
+        .btn-reserva { width: 100%; background: #10b981; color: white; font-weight: 600; font-size: 1.05rem; padding: 16px; border-radius: 14px; border: none; cursor: pointer; transition: all 0.2s; }
+        .btn-reserva:hover { background: #34d399; }
+        .btn-whatsapp { width: 100%; background: #25D366; color: white; font-weight: 600; font-size: 1.05rem; padding: 16px; border-radius: 14px; border: none; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-whatsapp:hover { background: #2ee66f; }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
         .container { flex: 1; padding: 32px 20px 0; max-width: 440px; margin: 0 auto; width: 100%; }
         .back { color: rgba(252, 211, 77, 0.8); font-size: 14px; margin-bottom: 24px; background: none; border: none; cursor: pointer; }
         .card { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 24px; padding: 24px; box-shadow: 0 25px 50px rgba(0,0,0,0.3); }
@@ -112,6 +144,11 @@ export default function Page() {
         .bottom-info p:first-child { font-size: 11px; letter-spacing: 0.12em; color: rgba(255,255,255,0.5); }
         .bottom-info p:last-child { font-size: 1.5rem; font-weight: 700; }
         .mesa-badge { display: inline-block; background: rgba(251, 191, 36, 0.2); color: #fcd34d; border: 1px solid rgba(251, 191, 36, 0.4); padding: 6px 16px; border-radius: 999px; font-size: 14px; font-weight: 500; }
+        .botones-final { display: flex; flex-direction: column; gap: 10px; }
+        .exito { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 40px 24px; max-width: 420px; margin: 0 auto; }
+        .exito-icon { font-size: 4rem; margin-bottom: 20px; }
+        .exito h2 { font-family: 'Playfair Display', serif; font-size: 1.75rem; font-weight: 600; margin-bottom: 12px; color: #fcd34d; }
+        .exito p { color: rgba(255,255,255,0.8); font-size: 1.1rem; line-height: 1.6; margin-bottom: 32px; }
       `}</style>
 
       <div className="page">
@@ -121,18 +158,24 @@ export default function Page() {
         </div>
 
         <div className="content">
+          {/* ===== INICIO ===== */}
           {vista === 'inicio' && (
             <div className="inicio">
               <div className="badge">⚓ VILLAVICIOSA · ASTURIAS</div>
               <h1 className="titulo">GALEÓN<br /><span>RESTAURANTE</span></h1>
               <p className="subtitulo">Cocina marinera y sabor del Caribe.<br />Reserva tu mesa o haz tu pedido en un instante.</p>
               <div className="botones-inicio">
-                <button className="btn-primary" onClick={() => setVista('reserva')}>🍽️ Reservar Mesa</button>
-                <button className="btn-secondary" onClick={() => setVista('menu')}>Ver Menú y Pedir</button>
+                <button className="btn-primary" onClick={() => setVista('reserva')}>
+                  🍽️ Reservar Mesa
+                </button>
+                <button className="btn-secondary" onClick={() => setVista('menu')}>
+                  Ver Menú y Pedir
+                </button>
               </div>
             </div>
           )}
 
+          {/* ===== RESERVA ===== */}
           {vista === 'reserva' && (
             <div className="container">
               <button className="back" onClick={() => setVista('inicio')}>← Volver</button>
@@ -172,17 +215,20 @@ export default function Page() {
                     </div>
                   </>
                 )}
-                <button className="btn-primary" style={{marginTop: 24}} onClick={() => setVista('menu')}>Continuar al Menú →</button>
+                <button className="btn-primary" style={{marginTop: 24}} onClick={() => setVista('menu')}>
+                  Continuar al Menú →
+                </button>
               </div>
             </div>
           )}
 
+          {/* ===== MENÚ ===== */}
           {vista === 'menu' && (
             <div className="container">
               <button className="back" onClick={() => setVista('reserva')}>← Volver a Reserva</button>
               <div className="card">
                 <h2>Nuestra Carta</h2>
-                <p className="menu-hint">Toca un plato para añadirlo</p>
+                <p className="menu-hint">Toca un plato para añadirlo (opcional)</p>
                 {MENU.map(sec => (
                   <div key={sec.cat} className="categoria">
                     <h3>{sec.cat.toUpperCase()}</h3>
@@ -200,8 +246,30 @@ export default function Page() {
               </div>
             </div>
           )}
+
+          {/* ===== ÉXITO ===== */}
+          {vista === 'exito' && (
+            <div className="exito">
+              <div className="exito-icon">✅</div>
+              <h2>Reserva exitosa</h2>
+              <p>Gracias por preferirnos.<br />Tu reserva ha sido registrada correctamente.</p>
+              <button className="btn-primary" onClick={() => {
+                setVista('inicio')
+                setNombre('')
+                setFecha('')
+                setHora('20:30')
+                setPersonas('2')
+                setMesa(null)
+                setPedido([])
+                setTipo('comer')
+              }}>
+                Volver al inicio
+              </button>
+            </div>
+          )}
         </div>
 
+        {/* Barra inferior con los 2 botones */}
         {showBar && (
           <div className="bottom-bar">
             <div className="bottom-inner">
@@ -212,7 +280,22 @@ export default function Page() {
                 </div>
                 {mesa && <span className="mesa-badge">Mesa #{mesa}</span>}
               </div>
-              <button className="btn-primary" onClick={reservar}>Enviar por WhatsApp</button>
+              <div className="botones-final">
+                <button 
+                  className="btn-reserva" 
+                  onClick={hacerReserva}
+                  disabled={enviando}
+                >
+                  {enviando ? 'Guardando...' : '✓ Confirmar Reserva'}
+                </button>
+                <button 
+                  className="btn-whatsapp" 
+                  onClick={enviarWhatsApp}
+                  disabled={enviando}
+                >
+                  {enviando ? 'Enviando...' : '💬 Enviar por WhatsApp'}
+                </button>
+              </div>
             </div>
           </div>
         )}
