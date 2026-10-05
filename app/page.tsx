@@ -74,13 +74,13 @@ export default function Page() {
   const [fecha, setFecha] = useState('')
   const [hora, setHora] = useState('20:30')
   const [personas, setPersonas] = useState('2')
-  const [mesa, setMesa] = useState(null)
+  const [mesa, setMesa] = useState(null as any)
   const [tipo, setTipo] = useState('comer')
-  const [pedido, setPedido] = useState([])
+  const [pedido, setPedido] = useState([] as any[])
   const [enviando, setEnviando] = useState(false)
-  const [mesasOcupadas, setMesasOcupadas] = useState([])
+  const [mesasOcupadas, setMesasOcupadas] = useState([] as any[])
   const [soloCarta, setSoloCarta] = useState(false)
-  const [fotoGrande, setFotoGrande] = useState(null)
+  const [fotoGrande, setFotoGrande] = useState(null as any)
 
   const t = (es, en) => (lang === 'es' ? es : en)
 
