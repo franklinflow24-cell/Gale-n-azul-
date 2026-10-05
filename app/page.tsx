@@ -80,6 +80,7 @@ export default function Page() {
   const [enviando, setEnviando] = useState(false)
   const [mesasOcupadas, setMesasOcupadas] = useState([])
   const [soloCarta, setSoloCarta] = useState(false)
+  const [fotoGrande, setFotoGrande] = useState(null)
 
   const t = (es, en) => (lang === 'es' ? es : en)
 
@@ -231,7 +232,7 @@ export default function Page() {
         .persona-btn.active{background:#fbbf24;color:#000}
         .categoria{margin-bottom:24px}.categoria h3{color:#fcd34d;font-size:11px;letter-spacing:.12em;border-bottom:1px solid rgba(251,191,36,.2);padding-bottom:8px;margin-bottom:12px}
         .plato{width:100%;display:flex;align-items:center;gap:12px;padding:10px;border-radius:14px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.25);margin-bottom:10px}
-        .plato-img{width:64px;height:64px;border-radius:12px;object-fit:cover;flex-shrink:0}
+        .plato-img{width:64px;height:64px;border-radius:12px;object-fit:cover;flex-shrink:0;cursor:pointer}.lightbox{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px}.lightbox img{max-width:100%;max-height:70vh;border-radius:16px;object-fit:contain}.lightbox .lb-name{margin-top:16px;font-size:1.1rem;text-align:center;color:#fcd34d;font-weight:600}.lightbox .lb-price{margin-top:6px;font-size:1rem;color:#fff}.lightbox .lb-close{position:absolute;top:16px;right:16px;width:42px;height:42px;border-radius:50%;border:none;background:rgba(255,255,255,.15);color:#fff;font-size:22px;cursor:pointer}
         .plato-info{flex:1;min-width:0}.plato-nombre{font-size:13px;line-height:1.3;margin-bottom:4px}.plato-precio{font-weight:700;color:#fcd34d;font-size:14px}
         .qty{display:flex;align-items:center;gap:8px;flex-shrink:0}
         .qty button{width:30px;height:30px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);color:#fff;font-size:16px;cursor:pointer}
@@ -376,7 +377,7 @@ export default function Page() {
                       const qty = getQty(it.n)
                       return (
                         <div key={it.n} className="plato">
-                          <img className="plato-img" src={it.img} alt={it.n} loading="lazy" />
+                          <img className="plato-img" src={it.img} alt={it.n} loading="lazy" onClick={() => setFotoGrande(it)} />
                           <div className="plato-info">
                             <div className="plato-nombre">{it.n}</div>
                             <div className="plato-precio">{it.p}€</div>
@@ -459,6 +460,14 @@ export default function Page() {
           </div>
         )}
       </div>
+      {fotoGrande && (
+        <div className="lightbox" onClick={() => setFotoGrande(null)}>
+          <button className="lb-close" onClick={() => setFotoGrande(null)}>×</button>
+          <img src={fotoGrande.img} alt={fotoGrande.n} onClick={(e) => e.stopPropagation()} />
+          <div className="lb-name">{fotoGrande.n}</div>
+          <div className="lb-price">{fotoGrande.p}€</div>
+        </div>
+      )}
     </>
   )
 }
