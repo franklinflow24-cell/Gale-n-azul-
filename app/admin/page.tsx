@@ -8,7 +8,7 @@ const COLORS = { libre: "#4ade80", reservada: "#fbbf24", ocupada: "#f87171", suc
 
 function beep() {
   try {
-    const AC = window.AudioContext || window.webkitAudioContext
+    const AC = window.AudioContext || window["webkitAudioContext"]
     if (!AC) return
     const ctx = new AC()
     const play = (f, t, d) => {
