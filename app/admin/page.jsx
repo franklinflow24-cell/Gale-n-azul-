@@ -206,7 +206,7 @@ export default function Admin() {
   if (!auth) {
     return (
       <div style={{ minHeight: "100vh", background: "#0a1a2f", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", padding: 24, fontFamily: "system-ui" }}>
-        <form onSubmit={login} style={{ width: "100%", maxWidth: 360, background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 20, padding: 28 }}>
+        <form onSubmit={login} style={{ width: "100%", maxWidth: 400, background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 20, padding: 28 }}>
           <h1 style={{ fontSize: "1.5rem", marginBottom: 6 }}>Galeon Admin</h1>
           <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 13, marginBottom: 20 }}>Solo personal autorizado</p>
           {errLogin && <p style={{ color: "#f87171", marginBottom: 12, textAlign: "center" }}>{errLogin}</p>}
@@ -221,9 +221,10 @@ export default function Admin() {
   }
 
   return (
-    <div style={{ minHeight: "100vh", background: "#0a1a2f", color: "#fff", padding: "20px 14px 40px", fontFamily: "system-ui" }}>
-      <div style={{ maxWidth: 720, margin: "0 auto" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 10, marginBottom: 16 }}>
+    <div style={{ minHeight: "100vh", background: "#0a1a2f", color: "#fff", padding: "24px 20px 48px", fontFamily: "system-ui" }}>
+      <style>{`@media (min-width:900px){.admin-stats{grid-template-columns:repeat(4,1fr)!important}.admin-mesas{gap:12px!important}.admin-header h1{font-size:1.75rem!important}}`}</style>
+      <div style={{ maxWidth: 1100, margin: "0 auto", width: "100%" }}>
+        <div className="admin-header" style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 10, marginBottom: 16, alignItems: "center" }}>
           <h1 style={{ fontSize: "1.5rem" }}>Galeon <span style={{ color: "#fcd34d" }}>Admin</span></h1>
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
             <button onClick={() => { enableSound(); cargar(false) }} style={btnY}>{loading ? "..." : "Recargar"}</button>
@@ -237,7 +238,7 @@ export default function Admin() {
         {alerta && <div style={{ background: "#fbbf24", color: "#000", fontWeight: 700, textAlign: "center", padding: 12, borderRadius: 12, marginBottom: 14 }}>{alerta}</div>}
         <p style={{ fontSize: 12, color: "rgba(255,255,255,0.45)", marginBottom: 12 }}>Toca Probar sonido una vez. Deja el Admin abierto.</p>
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 16 }}>
+        <div className="admin-stats" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 16 }}>
           <div style={statBox}><div style={statL}>HOY</div><div style={{ ...statV, color: "#fcd34d" }}>{porFecha(hoy).filter(p => p.estado !== "finalizada").length}</div></div>
           <div style={statBox}><div style={statL}>ACTIVAS</div><div style={{ ...statV, color: "#4ade80" }}>{activos.length}</div></div>
         </div>
@@ -266,7 +267,7 @@ export default function Admin() {
             <input type="date" value={fechaM} onChange={e => setFechaM(e.target.value)} style={dateIn} />
             <button onClick={() => setFechaM(hoy)} style={chip}>Hoy</button>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 8 }}>
+          <div className="admin-mesas" style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 10 }}>
             {[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15].map(n => {
               const est = estadoMesa(n)
               return (
