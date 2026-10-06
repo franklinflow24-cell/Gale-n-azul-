@@ -196,7 +196,7 @@ export default function Page() {
         .lang{position:fixed;top:14px;right:14px;z-index:40;display:flex;gap:6px}
         .lang button{padding:6px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:rgba(0,0,0,.4);color:#fff;font-size:12px;cursor:pointer}
         .lang button.on{background:#fbbf24;color:#000;border-color:#fbbf24}
-        .inicio{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:60px 24px 40px;max-width:520px;margin:0 auto}
+        .inicio{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:60px 24px 40px;max-width:560px;margin:0 auto;width:100%}
         .badge{display:inline-flex;gap:8px;border:1px solid rgba(251,191,36,.5);border-radius:999px;padding:8px 20px;color:#fcd34d;letter-spacing:.2em;font-size:11px;margin-bottom:24px}
         .titulo{font-family:'Playfair Display',serif;font-size:clamp(2.6rem,8vw,3.5rem);font-weight:700;line-height:.95}
         .titulo span{color:#fcd34d}
@@ -248,6 +248,35 @@ export default function Page() {
         .exito-icon{font-size:3.5rem;margin-bottom:16px}.exito h2{font-family:'Playfair Display',serif;font-size:1.7rem;color:#fcd34d;margin-bottom:10px}
         .exito p{color:rgba(255,255,255,.8);font-size:1.05rem;line-height:1.6;margin-bottom:28px}
         .leyenda{font-size:11px;color:rgba(255,255,255,.5);margin-top:8px;display:flex;gap:14px;justify-content:center}
+
+        .panel{width:100%;max-width:560px;margin-left:auto;margin-right:auto}
+        .bottom-inner{width:100%;max-width:560px;margin:0 auto}
+        @media (min-width: 768px) {
+          .inicio{max-width:680px;padding:80px 32px 48px}
+          .titulo{font-size:3.2rem}
+          .panel{max-width:920px;padding:28px 28px 48px}
+          .categoria{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px}
+          .categoria h3{grid-column:1/-1;margin:12px 0 4px}
+          .plato{margin-bottom:0}
+          .plato-img{width:80px;height:80px}
+          .bottom-bar{padding:16px 28px 24px}
+          .bottom-inner{max-width:920px}
+          .botones-final{display:flex;gap:12px}
+          .botones-final button{flex:1}
+          .botones-inicio{max-width:440px;margin-left:auto;margin-right:auto}
+          .section{max-width:920px;margin-left:auto;margin-right:auto}
+          .reviews{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+          .review{margin-bottom:0}
+          .grid-5{grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+          .lightbox img{max-height:75vh;max-width:min(900px,92vw)}
+        }
+        @media (min-width: 1100px) {
+          .panel{max-width:1040px}
+          .bottom-inner{max-width:1040px}
+          .section{max-width:1040px}
+          .titulo{font-size:3.6rem}
+          .categoria{gap:14px}
+        }
       `}</style>
 
       <div className="page">
